@@ -131,7 +131,7 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
 
         // Khởi tạo components của filter
         tfSearch = new JTextField(15);
-        tfSearchLabel = new JLabel("Tìm theo ID:");
+        tfSearchLabel = new JLabel("Tìm kiếm");
 
         filterPanel.add(btnFilter);
         filterPanel.add(tfSearchLabel);
@@ -264,7 +264,7 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
             table.setBackground(theme.background);
             table.setForeground(theme.foreground);
             table.setGridColor(theme.borderColor);
-            table.setFont(theme.getFont(12));
+            table.setFont(theme.getFont(15));
             table.setSelectionBackground(theme.accent);
             table.setSelectionForeground(theme.buttonForeground);
         }

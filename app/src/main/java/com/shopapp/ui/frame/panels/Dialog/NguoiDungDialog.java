@@ -1,4 +1,4 @@
-package com.shopapp.ui.frame.panels;
+package com.shopapp.ui.frame.panels.Dialog;
 
 import java.awt.*;
 import java.time.LocalDateTime;
