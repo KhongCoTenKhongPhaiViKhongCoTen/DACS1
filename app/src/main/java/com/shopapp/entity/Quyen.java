@@ -34,6 +34,11 @@ public class Quyen {
     @Column(name = "module", nullable = false, length = 50)
     private String module;
 
+    @Override
+    public String toString() {
+        return "Quyen [" + permissionName + "]";
+    }
+
     // Getters and Setters
     public Integer getPermissionId() {
         return permissionId;

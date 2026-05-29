@@ -1,6 +1,7 @@
 package com.shopapp.repository.impl;
 
 import com.shopapp.entity.NguoiDung;
+import com.shopapp.entity.RolePermissions;
 import com.shopapp.entity.Vaitro;
 import com.shopapp.repository.NguoiDungRepository;
 import com.shopapp.util.HibernateUtil;
@@ -25,7 +26,11 @@ public class NguoiDungRepositoryImpl implements NguoiDungRepository {
                 Vaitro role = nguoiDung.getRole();
                 role.getRoleName(); // Initialize role proxy
                 if (role.getRolePermissions() != null) {
-                    role.getRolePermissions().size(); // Initialize permissions collection
+                    // Initialize the collection and the permission inside each RolePermissions
+                    for (RolePermissions rp : role.getRolePermissions()) {
+                        // Initialize the permission inside the RolePermissions
+                        rp.getPermission().getPermissionCode();
+                    }
                 }
             }
             return Optional.ofNullable(nguoiDung);
@@ -43,7 +48,11 @@ public class NguoiDungRepositoryImpl implements NguoiDungRepository {
                     Vaitro role = nguoiDung.getRole();
                     role.getRoleName(); // Initialize role proxy
                     if (role.getRolePermissions() != null) {
-                        role.getRolePermissions().size(); // Initialize permissions collection
+                        // Initialize the collection and the permission inside each RolePermissions
+                        for (RolePermissions rp : role.getRolePermissions()) {
+                            // Initialize the permission inside the RolePermissions
+                            rp.getPermission().getPermissionCode();
+                        }
                     }
                 }
             }
@@ -64,7 +73,11 @@ public class NguoiDungRepositoryImpl implements NguoiDungRepository {
                 Vaitro role = nguoiDung.getRole();
                 role.getRoleName(); // Initialize role proxy
                 if (role.getRolePermissions() != null) {
-                    role.getRolePermissions().size(); // Initialize permissions collection
+                    // Initialize the collection and the permission inside each RolePermissions
+                    for (RolePermissions rp : role.getRolePermissions()) {
+                        // Initialize the permission inside the RolePermissions
+                        rp.getPermission().getPermissionCode();
+                    }
                 }
             }
             return Optional.ofNullable(nguoiDung);

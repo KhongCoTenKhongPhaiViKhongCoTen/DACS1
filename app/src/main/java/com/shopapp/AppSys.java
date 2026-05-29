@@ -14,7 +14,6 @@ public class AppSys {
     private NguoiDung nguoiDung = null;
     private Set<Quyen> quyenSet = new HashSet<>();
 
-
     public static void setNguoiDung(NguoiDung nguoiDung) {
         if (Self.nguoiDung != null) {
             throw new IllegalStateException("NguoiDung đã được thiết lập. Không thể thay đổi.");
@@ -24,6 +23,8 @@ public class AppSys {
         // Automatically set permissions based on user's role
         if (nguoiDung != null) {
             Self.quyenSet = nguoiDung.getPermissions();
+
+            IO.println("Quyen Truy cap nguoi dung " + nguoiDung.getUsername() + " " + Self.quyenSet.toString());
         }
     }
 
@@ -32,7 +33,7 @@ public class AppSys {
     }
 
     // public static void setQuyenSet(Set<Quyen> quyenSet) {
-    //     Self.quyenSet = quyenSet;
+    // Self.quyenSet = quyenSet;
     // }
 
     public static Set<Quyen> getQuyenSet() {
@@ -41,6 +42,7 @@ public class AppSys {
 
     /**
      * Check if the current user has a specific permission
+     * 
      * @param permission The permission to check
      * @return true if the user has the permission, false otherwise
      */
@@ -50,6 +52,7 @@ public class AppSys {
 
     /**
      * Check if the current user has a specific permission by its code
+     * 
      * @param permissionCode The permission code to check
      * @return true if the user has the permission, false otherwise
      */
@@ -64,6 +67,7 @@ public class AppSys {
 
     /**
      * Get a permission by its code from the current user's permission set
+     * 
      * @param permissionCode The permission code to find
      * @return The permission object if found, null otherwise
      */
@@ -78,6 +82,7 @@ public class AppSys {
 
     /**
      * Check if the current user has any of the specified permissions
+     * 
      * @param permissions The permissions to check
      * @return true if the user has at least one of the permissions, false otherwise
      */
@@ -92,6 +97,7 @@ public class AppSys {
 
     /**
      * Check if the user has any of the specified permissions by their codes
+     * 
      * @param permissionCodes The permission codes to check
      * @return true if the user has at least one of the permissions, false otherwise
      */
@@ -105,7 +111,9 @@ public class AppSys {
     }
 
     /**
-     * Check if the user has any of the specified permissions by their codes (varargs version)
+     * Check if the user has any of the specified permissions by their codes
+     * (varargs version)
+     * 
      * @param permissionCodes The permission codes to check
      * @return true if the user has at least one of the permissions, false otherwise
      */

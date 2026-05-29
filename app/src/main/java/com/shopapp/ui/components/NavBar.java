@@ -80,7 +80,8 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
      * Tạo expandable section với indent style
      */
     private JPanel createExpandableSection(String icon, String title, String[] itemNames, String[] pageKeys) {
-        JPanel sectionPanel = new JPanel(new BorderLayout());
+        JPanel sectionPanel = new JPanel();
+        sectionPanel.setLayout(new BoxLayout(sectionPanel, BoxLayout.Y_AXIS));
         sectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         sectionPanel.setOpaque(false);
 
@@ -127,6 +128,7 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         btnToggle.addActionListener(e -> {
             isExpanded[0] = !isExpanded[0];
             subItemsPanel.setVisible(isExpanded[0]);
+            sectionPanel.setMaximumSize(new Dimension(width, sectionPanel.getPreferredSize().height));
 
             sectionPanel.revalidate();
             sectionPanel.repaint();
@@ -155,7 +157,8 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         contentPanel.add(Box.createVerticalStrut(5)); // ← Space trước sub-items
         contentPanel.add(subItemsPanel);
 
-        sectionPanel.add(contentPanel, BorderLayout.CENTER);
+        sectionPanel.add(contentPanel);
+        sectionPanel.setMaximumSize(new Dimension(width, sectionPanel.getPreferredSize().height));
 
         return sectionPanel;
     }

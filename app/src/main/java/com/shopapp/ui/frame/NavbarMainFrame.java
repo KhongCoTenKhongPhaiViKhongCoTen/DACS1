@@ -27,9 +27,30 @@ public class NavbarMainFrame {
 
         navBar.addNavButton("🏠", "Trang chủ", PageKey.HOME);
 
-        navBar.addNavExpandableSection("", "Quản lý tài khoản",
-                PageKey.AccountManagement.getItemName(),
-                PageKey.AccountManagement.getListkey());
+        // Quản lý tài khoản section - requires user permissions
+        if (AppSys.hasAnyPermissionByCode("USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE")) {
+            navBar.addNavExpandableSection("", "Quản lý tài khoản",
+                    PageKey.AccountManagement.getItemName(),
+                    PageKey.AccountManagement.getListkey());
+        }
+        
+        // Kho hàng section - requires inventory permissions
+        if (AppSys.hasAnyPermissionByCode("INVENTORY_READ", "INVENTORY_UPDATE")) {
+            navBar.addNavExpandableSection("", "Kho hàng",
+                    PageKey.KhoHang.getItemName(),
+                    PageKey.KhoHang.getListkey());
+        }
+
+        // Đơn hàng section - requires order permissions
+        if (AppSys.hasAnyPermissionByCode("ORDER_READ", "ORDER_CREATE", "ORDER_UPDATE", "ORDER_DELETE")) {
+            navBar.addNavButton(null, "Đơn Hàng", PageKey.DON_HANG);
+        }
+
+        // Khách hàng section - requires customer permissions
+        if (AppSys.hasAnyPermissionByCode("CUSTOMER_READ", "CUSTOMER_CREATE", "CUSTOMER_UPDATE", "CUSTOMER_DELETE")) {
+            navBar.addNavButton(null, "Khách Hàng", PageKey.KHACH_HANG);;
+        }
+
 
         navBar.addVerticalGlue();
         navBar.addNavButton("⚙️", "Cài đặt", PageKey.SETTINGS);

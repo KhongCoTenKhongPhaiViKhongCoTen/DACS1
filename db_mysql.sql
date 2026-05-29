@@ -167,31 +167,3 @@ CREATE INDEX idx_sanpham_supplier ON SAN_PHAM(supplier_id);
 CREATE INDEX idx_sanpham_sku ON SAN_PHAM(sku);
 CREATE INDEX idx_tonkho_product ON TON_KHO(product_id);
 CREATE INDEX idx_tonkho_location ON TON_KHO(location);
-
--- Insert sample data for roles (optional)
-INSERT INTO VAITRO (role_name, description) VALUES
-('Admin', 'Quản trị hệ thống'),
-('Quản lý', 'Quản lý cửa hàng'),
-('Nhân viên', 'Nhân viên bán hàng');
-
--- Insert sample permissions (optional)
-INSERT INTO QUYEN (permission_code, permission_name, module) VALUES
-('PRODUCT_READ', 'Xem sản phẩm', 'PRODUCT'),
-('PRODUCT_CREATE', 'Thêm sản phẩm', 'PRODUCT'),
-('PRODUCT_UPDATE', 'Cập nhật sản phẩm', 'PRODUCT'),
-('PRODUCT_DELETE', 'Xóa sản phẩm', 'PRODUCT'),
-('ORDER_READ', 'Xem đơn hàng', 'ORDER'),
-('ORDER_CREATE', 'Tạo đơn hàng', 'ORDER'),
-('ORDER_UPDATE', 'Cập nhật đơn hàng', 'ORDER'),
-('ORDER_DELETE', 'Xóa đơn hàng', 'ORDER'),
-('USER_READ', 'Xem người dùng', 'USER'),
-('USER_CREATE', 'Thêm người dùng', 'USER'),
-('USER_UPDATE', 'Cập nhật người dùng', 'USER'),
-('USER_DELETE', 'Xóa người dùng', 'USER'),
-('REPORT_READ', 'Xem báo cáo', 'REPORT');
-
--- Assign permissions to Admin role (optional)
-INSERT INTO ROLE_PERMISSIONS (role_id, permission_id)
-SELECT v.role_id, p.permission_id
-FROM VAITRO v, QUYEN p
-WHERE v.role_name = 'Admin';
