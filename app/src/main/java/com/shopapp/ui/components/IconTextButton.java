@@ -65,6 +65,10 @@ public class IconTextButton extends JButton {
         ThemeManager.addThemeChangeListener(themeChangeListener);
     }
 
+    public IconTextButton(String icon, String text) {
+        this(icon, text, Orientation.HORIZONTAL);
+    }
+
     // ✅ Thêm method này để update text
     public void setButtonText(String newText) {
         if (textLabel != null) {

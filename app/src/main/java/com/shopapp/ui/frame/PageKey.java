@@ -51,7 +51,7 @@ public class PageKey {
 
         public static String[] getItemName() {
             return new String[] {
-                    "Quản lý tài khoản",
+                    "Quản lý người dùng",
                     "Quản lý vai trò",
                     "Quản lý nhóm quyền"
             };

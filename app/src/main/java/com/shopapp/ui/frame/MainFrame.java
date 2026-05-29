@@ -12,8 +12,8 @@ import com.shopapp.ui.listeners.PageChangeListener;
 public class MainFrame extends JFrame
         implements ThemeManager.ThemeChangeListener, PageChangeListener {
 
-    private JPanel contentPanel;
-    private CardLayout cardLayout;
+    private CardLayout cardLayout = new CardLayout();
+    private JPanel contentPanel = new JPanel(cardLayout);
     private NavBar navbar = new NavBar(300, 56);
 
     // Pages
@@ -42,20 +42,13 @@ public class MainFrame extends JFrame
         // Get the navbar panel from NavbarManager (includes account login)
         add(navbar, BorderLayout.WEST);
 
-        cardLayout = new CardLayout();
-        contentPanel = new JPanel(cardLayout);
-
-        // Initialize and add pages
-        homePage = new HomePage();
-        settingsPage = new SettingsPage();
-
         // Add pages to content panel
-        contentPanel.add(homePage, "home");
-        contentPanel.add(settingsPage, "settings");
+        contentPanel.add(homePage, PageKey.HOME);
+        contentPanel.add(settingsPage, PageKey.SETTINGS);
 
         add(contentPanel, BorderLayout.CENTER);
 
-        cardLayout.show(contentPanel, "home");
+        cardLayout.show(contentPanel, PageKey.HOME);
 
         // Register page change listener with NavbarManager
         navbar.addPageChangeListener(this);

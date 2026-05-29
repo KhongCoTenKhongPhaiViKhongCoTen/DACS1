@@ -1,5 +1,7 @@
 -- MySQL Database Schema for Clothing Store Management System
 -- Converted from ER design in db_design_clothing_store.md
+create schema dacs1;
+use dacs1;
 
 -- Drop tables if they exist (for clean rebuild)
 DROP TABLE IF EXISTS THANH_TOAN;

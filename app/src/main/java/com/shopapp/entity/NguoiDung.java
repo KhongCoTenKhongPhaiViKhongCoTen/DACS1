@@ -3,6 +3,7 @@ package com.shopapp.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -39,6 +40,16 @@ public class NguoiDung {
     @JoinColumn(name = "role_id", nullable = false)
     private Vaitro role;
 
+    // Constructors
+    public NguoiDung() {
+    }
+
+    public NguoiDung(String username, String passwordHash, String fullName) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.fullName = fullName;
+    }
+
     // Getters and Setters
     public Integer getUserId() {
         return userId;
@@ -50,6 +61,7 @@ public class NguoiDung {
 
     /**
      * Get permissions for this user based on their role
+     * 
      * @return Set of permissions assigned to the user's role
      */
     public Set<Quyen> getPermissions() {
@@ -124,5 +136,35 @@ public class NguoiDung {
 
     public void setRole(Vaitro role) {
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof NguoiDung))
+            return false;
+        NguoiDung that = (NguoiDung) o;
+        return Objects.equals(getUserId(), that.getUserId()) &&
+                Objects.equals(getUsername(), that.getUsername());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUserId(), getUsername());
+    }
+
+    @Override
+    public String toString() {
+        return "NguoiDung{" +
+                "userId=" + userId +
+                ", username='" + username + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", createdAt=" + createdAt +
+                ", isActive=" + isActive +
+                ", role=" + (role != null ? role.getRoleName() : "null") +
+                '}';
     }
 }

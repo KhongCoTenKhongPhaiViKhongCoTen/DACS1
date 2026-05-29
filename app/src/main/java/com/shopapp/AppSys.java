@@ -20,7 +20,11 @@ public class AppSys {
         }
 
         Self.nguoiDung = nguoiDung;
-        // Automatically set permissions based on user's role
+        /**
+         * Khi thiết lập người dùng, tự động lấy quyền của người dùng đó
+         * và lưu vào quyenSet để tiện kiểm tra quyền trong suốt phiên làm việc của ứng dụng.
+         * 
+         */
         if (nguoiDung != null) {
             Self.quyenSet = nguoiDung.getPermissions();
 
@@ -31,10 +35,6 @@ public class AppSys {
     public static NguoiDung getNguoiDung() {
         return Self.nguoiDung;
     }
-
-    // public static void setQuyenSet(Set<Quyen> quyenSet) {
-    // Self.quyenSet = quyenSet;
-    // }
 
     public static Set<Quyen> getQuyenSet() {
         return Self.quyenSet;

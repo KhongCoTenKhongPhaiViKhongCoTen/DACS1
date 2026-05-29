@@ -32,14 +32,14 @@ import com.shopapp.ui.themes.ThemeManager.ThemeChangeListener;
  * @see #handleEdit() Xử lý sự kiện nút Sửa
  * @see #handleDelete() Xử lý sự kiện nút Xóa
  * 
- * Các Override methods tùy chọn
+ *      Các Override methods tùy chọn
  * @see #addCustomButtons() Thêm các nút tùy chỉnh vào buttonPanel
  * @see #addCustomFilters() Thêm các filters tùy chỉnh vào filterPanel
  * @see #attachCustomEvents() Gắn sự kiện tùy chỉnh
  * 
  */
 
-public abstract class AbstractTablePage extends JPanel implements ThemeChangeListener {
+public abstract class BasePage extends JPanel implements ThemeChangeListener {
 
     // ===== TABLE =====
     protected JTable table;
@@ -70,7 +70,7 @@ public abstract class AbstractTablePage extends JPanel implements ThemeChangeLis
      * @param columnTableNames Tên các cột của bảng
      * @since 1.0
      */
-    public AbstractTablePage(String[] columnTableNames) {
+    public BasePage(String[] columnTableNames) {
         initBase();
         initUI(columnTableNames);
         initEvents();
@@ -305,7 +305,7 @@ public abstract class AbstractTablePage extends JPanel implements ThemeChangeLis
      * Áp dụng theme cho một button.
      *
      * @param button Button cần áp dụng theme
-     * @param theme Theme hiện tại
+     * @param theme  Theme hiện tại
      */
     private void applyButtonTheme(javax.swing.JButton button, Theme theme) {
         button.setBackground(theme.buttonBackground);

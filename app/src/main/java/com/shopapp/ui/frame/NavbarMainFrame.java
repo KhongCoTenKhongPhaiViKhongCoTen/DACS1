@@ -5,19 +5,26 @@ import com.shopapp.entity.NguoiDung;
 import com.shopapp.ui.components.NavBar;
 import com.shopapp.ui.themes.Theme;
 import com.shopapp.ui.themes.ThemeManager;
+import com.shopapp.util.AutoLoginManager;
 import com.shopapp.ui.themes.AppFont;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
 
 public class NavbarMainFrame {
 
@@ -29,31 +36,73 @@ public class NavbarMainFrame {
 
         // Quản lý tài khoản section - requires user permissions
         if (AppSys.hasAnyPermissionByCode("USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE")) {
-            navBar.addNavExpandableSection("", "Quản lý tài khoản",
+            navBar.addNavExpandableSection("👥", "Quản lý tài khoản",
                     PageKey.AccountManagement.getItemName(),
                     PageKey.AccountManagement.getListkey());
         }
-        
-        // Kho hàng section - requires inventory permissions
+
         if (AppSys.hasAnyPermissionByCode("INVENTORY_READ", "INVENTORY_UPDATE")) {
-            navBar.addNavExpandableSection("", "Kho hàng",
+            navBar.addNavExpandableSection("📦", "Kho hàng",
                     PageKey.KhoHang.getItemName(),
                     PageKey.KhoHang.getListkey());
         }
 
-        // Đơn hàng section - requires order permissions
         if (AppSys.hasAnyPermissionByCode("ORDER_READ", "ORDER_CREATE", "ORDER_UPDATE", "ORDER_DELETE")) {
-            navBar.addNavButton(null, "Đơn Hàng", PageKey.DON_HANG);
+            navBar.addNavButton("🧾", "Đơn Hàng", PageKey.DON_HANG);
         }
 
-        // Khách hàng section - requires customer permissions
         if (AppSys.hasAnyPermissionByCode("CUSTOMER_READ", "CUSTOMER_CREATE", "CUSTOMER_UPDATE", "CUSTOMER_DELETE")) {
-            navBar.addNavButton(null, "Khách Hàng", PageKey.KHACH_HANG);;
+            navBar.addNavButton("🧑‍🤝‍🧑", "Khách Hàng", PageKey.KHACH_HANG);
         }
-
 
         navBar.addVerticalGlue();
         navBar.addNavButton("⚙️", "Cài đặt", PageKey.SETTINGS);
+
+        JButton logoutButton = createLogoutButton();
+        navBar.addComponent(logoutButton);
+
+        logoutButton.addActionListener(e -> {
+            AutoLoginManager.clear();
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                java.awt.Window window = javax.swing.SwingUtilities.getWindowAncestor(logoutButton);
+                if (window != null)
+                    window.dispose();
+                new Login();
+            });
+        });
+
+    }
+
+    private static JButton createLogoutButton() {
+        JButton btn = new JButton("🚪  Đăng xuất");
+        btn.setFont(ThemeManager.getFont(14));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btn.setMaximumSize(new Dimension(300, 56)); // ← fix cứng bằng width navbar
+        btn.setPreferredSize(new Dimension(300, 56));
+        btn.setBorder(new EmptyBorder(12, 18, 12, 18));
+        btn.setForeground(ThemeManager.getCurrentTheme().textPrimary);
+        btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                btn.setBackground(new Color(180, 40, 55));
+                btn.setForeground(new Color(255, 100, 100));
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                btn.setBackground(UIManager.getColor("Panel.background"));
+                btn.setForeground(ThemeManager.getCurrentTheme().textPrimary);
+            }
+        });
+
+        return btn;
     }
 
     private static JPanel accountNavBar() {

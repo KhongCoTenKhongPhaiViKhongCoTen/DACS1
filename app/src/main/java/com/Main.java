@@ -9,8 +9,8 @@ public class Main {
         IO.println("Hello");
 
         SwingUtilities.invokeLater(() -> {
-            Login mainFrame = new Login();
-            mainFrame.setVisible(true);
+            Login loginFrame = new Login();
+            // loginFrame.setVisible(true);
         });
 
     }

@@ -14,6 +14,7 @@ import com.shopapp.ui.listeners.PageChangeListener;
 public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
 
     private JPanel navBar;
+    private JScrollPane scrollPane;
     private JButton currentSelectedButton;
     private List<PageChangeListener> pageListeners = new ArrayList<>();
 
@@ -27,7 +28,19 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         initComponents();
         applyTheme();
         ThemeManager.addThemeChangeListener(this);
-        add(navBar, BorderLayout.WEST);
+
+        scrollPane = new JScrollPane(navBar);
+        scrollPane.setBorder(null);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // Tốc độ cuộn
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        // Style
+        scrollPane.getViewport().setBackground(ThemeManager.getCurrentTheme().background);
+
+        add(scrollPane, BorderLayout.WEST);
     }
 
     public NavBar(int width) {
@@ -72,6 +85,12 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
      */
     public void addHeader(Component c) {
         navBar.add(c, 0);
+        navBar.revalidate();
+        navBar.repaint();
+    }
+
+    public void addComponent(Component c) {
+        navBar.add(c);
         navBar.revalidate();
         navBar.repaint();
     }
@@ -168,9 +187,9 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
      */
     private JButton createSubMenuButton(String text, String pageKey) {
         JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(width - 20, height));
-        btn.setMaximumSize(new Dimension(width - 20, height));
-        btn.setMinimumSize(new Dimension(width - 20, height));
+        btn.setPreferredSize(new Dimension(width - 40, height));
+        btn.setMaximumSize(new Dimension(width - 40, height));
+        btn.setMinimumSize(new Dimension(width - 40, height));
         btn.setAlignmentX(Component.LEFT_ALIGNMENT);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);

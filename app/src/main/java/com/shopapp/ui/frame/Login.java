@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.util.Optional;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -21,7 +22,7 @@ import com.shopapp.repository.NguoiDungRepository;
 import com.shopapp.repository.impl.NguoiDungRepositoryImpl;
 import com.shopapp.service.NguoiDungService;
 import com.shopapp.service.impl.NguoiDungServiceImpl;
-
+import com.shopapp.util.AutoLoginManager;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class Login extends JFrame {
@@ -31,6 +32,7 @@ public class Login extends JFrame {
     private final JTextField userTextField = new JTextField(25);
     private final JPasswordField passField = new JPasswordField(25);
 
+    private JCheckBox rememberMeCheckbox = new JCheckBox("Remember me");
     private JPanel buttonPanel;
     private JButton loginButton = new JButton("Login");
 
@@ -40,19 +42,72 @@ public class Login extends JFrame {
         setTitle("Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        add(createLoginPanel());
+        // Check auto login trước, nếu thành công thì không hiện form
+        if (tryAutoLogin())
+            return;
 
+        add(createLoginPanel());
         pack();
         setLocationRelativeTo(null);
+        appActionListener();
+        setVisible(true);
+    }
 
-        // Add action listener to login button
-        loginButton.addActionListener(new ActionListener() {
+    // ==================== AUTO LOGIN ====================
+
+    private boolean tryAutoLogin() {
+        if (!AutoLoginManager.isAutoLoginAvailable())
+            return false;
+
+        String username = AutoLoginManager.getUsername();
+        if (username == null)
+            return false;
+
+        try {
+            NguoiDungRepository userRepository = new NguoiDungRepositoryImpl();
+            NguoiDungService userService = new NguoiDungServiceImpl(userRepository);
+            Optional<NguoiDung> optionalUser = userService.findByUsername(username);
+
+            if (optionalUser.isPresent()) {
+                AppSys.setNguoiDung(optionalUser.get());
+                SwingUtilities.invokeLater(() -> {
+                    new MainFrame().setVisible(true);
+                });
+                this.dispose();
+                return true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        // Không tìm thấy user → xóa credentials cũ
+        AutoLoginManager.clear();
+        return false;
+    }
+
+    // ==================== UI ====================
+
+    private void appActionListener() {
+        userTextField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                passField.requestFocusInWindow();
+            }
+        });
+
+        passField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 handleLoginAttempt();
             }
         });
 
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleLoginAttempt();
+            }
+        });
     }
 
     private JPanel createLoginPanel() {
@@ -60,18 +115,26 @@ public class Login extends JFrame {
         form.setTheme(Theme.LIGHT);
         userTextField.setSize(200, 30);
         passField.setSize(200, 100);
+
         JLabel userJLabel = new JLabel("Username:");
         JLabel passJLabel = new JLabel("Password:");
         userJLabel.setFont(ThemeManager.getFont(16));
         passJLabel.setFont(ThemeManager.getFont(16));
+
+        rememberMeCheckbox.setSelected(AutoLoginManager.hasSavedCredentials());
+
         form.addRow(userJLabel, userTextField);
         form.addRow(passJLabel, passField);
+        form.addRowCenter(rememberMeCheckbox);
 
         buttonPanel = new JPanel();
         buttonPanel.add(loginButton);
         form.addRowCenter(buttonPanel);
+
         return form;
     }
+
+    // ==================== LOGIN ====================
 
     private void handleLoginAttempt() {
         String username = userTextField.getText().trim();
@@ -92,15 +155,24 @@ public class Login extends JFrame {
 
             if (optionalUser.isPresent()) {
                 NguoiDung user = optionalUser.get();
+
                 if (BCrypt.checkpw(password, user.getPasswordHash())) {
                     AppSys.setNguoiDung(user);
+
+                    if (rememberMeCheckbox.isSelected()) {
+                        // Chỉ lưu username, không cần token vì dùng SQLite local
+                        AutoLoginManager.save(user.getUsername(), user.getUsername());
+                    } else {
+                        AutoLoginManager.clear();
+                    }
+
                     SwingUtilities.invokeLater(() -> {
-                        MainFrame mainFrame = new MainFrame();
-                        mainFrame.setVisible(true);
+                        new MainFrame().setVisible(true);
                     });
 
                     clearLoginFields();
                     this.dispose();
+
                 } else {
                     JOptionPane.showMessageDialog(this,
                             "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.",
@@ -113,6 +185,7 @@ public class Login extends JFrame {
                         "Login Error",
                         JOptionPane.ERROR_MESSAGE);
             }
+
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                     "Login error: " + ex.getMessage(),
@@ -120,6 +193,7 @@ public class Login extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
+
         form.setTheme(currentTheme);
     }
 
@@ -128,10 +202,11 @@ public class Login extends JFrame {
         passField.setText("");
     }
 
+    // ==================== MAIN ====================
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            Login loginFrame = new Login();
-            loginFrame.setVisible(true);
+            new Login();
         });
     }
 }
