@@ -3,8 +3,10 @@ package com.shopapp.ui.frame;
 import javax.swing.*;
 import java.awt.*;
 
+import com.shopapp.AppSys;
 import com.shopapp.ui.components.NavBar;
 import com.shopapp.ui.frame.panels.HomePage;
+import com.shopapp.ui.frame.panels.NguoiDungPage;
 import com.shopapp.ui.frame.panels.SettingsPage;
 import com.shopapp.ui.themes.*;
 import com.shopapp.ui.listeners.PageChangeListener;
@@ -19,6 +21,7 @@ public class MainFrame extends JFrame
     // Pages
     private HomePage homePage = new HomePage();
     private SettingsPage settingsPage = new SettingsPage();
+    private NguoiDungPage nguoiDungPage;
 
     public MainFrame() {
         initFrame();
@@ -45,6 +48,11 @@ public class MainFrame extends JFrame
         // Add pages to content panel
         contentPanel.add(homePage, PageKey.HOME);
         contentPanel.add(settingsPage, PageKey.SETTINGS);
+
+        if (AppSys.hasAnyPermissionByCode("USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE")) {
+            nguoiDungPage = new NguoiDungPage();
+            contentPanel.add(nguoiDungPage, PageKey.AccountManagement.NGUOI_DUNG);
+        }
 
         add(contentPanel, BorderLayout.CENTER);
 
