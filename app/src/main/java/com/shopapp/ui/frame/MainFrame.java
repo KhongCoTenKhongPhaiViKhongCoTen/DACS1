@@ -49,7 +49,7 @@ public class MainFrame extends JFrame
         contentPanel.add(homePage, PageKey.HOME);
         contentPanel.add(settingsPage, PageKey.SETTINGS);
 
-        if (AppSys.hasAnyPermissionByCode("USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE")) {
+        if (AppSys.hasAnyPermissionByCode("USER_READ")) {
             nguoiDungPage = new NguoiDungPage();
             contentPanel.add(nguoiDungPage, PageKey.AccountManagement.NGUOI_DUNG);
         }

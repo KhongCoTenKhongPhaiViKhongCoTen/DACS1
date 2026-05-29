@@ -1,14 +1,10 @@
 package com.shopapp.ui.frame.panels;
 
 import java.awt.*;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import org.mindrot.jbcrypt.BCrypt;
-
 import com.shopapp.AppSys;
 import com.shopapp.entity.NguoiDung;
 import com.shopapp.entity.Vaitro;
@@ -19,7 +15,6 @@ import com.shopapp.service.VaitroService;
 import com.shopapp.service.impl.NguoiDungServiceImpl;
 import com.shopapp.service.impl.VaitroServiceImpl;
 import com.shopapp.ui.components.BasePage;
-import com.shopapp.ui.components.Form;
 import com.shopapp.ui.themes.Theme;
 import com.shopapp.ui.themes.ThemeManager;
 
