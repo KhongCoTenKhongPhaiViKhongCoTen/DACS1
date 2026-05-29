@@ -17,7 +17,7 @@ public class KhachHangRepositoryImpl implements KhachHangRepository {
     @Override
     public Optional<KhachHang> findById(Integer id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            KhachHang khachHang = session.get(KhachHang.class, id);
+            KhachHang khachHang = session.find(KhachHang.class, id);
             return Optional.ofNullable(khachHang);
         }
     }
@@ -72,7 +72,7 @@ public class KhachHangRepositoryImpl implements KhachHangRepository {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            KhachHang khachHang = session.get(KhachHang.class, id);
+            KhachHang khachHang = session.find(KhachHang.class, id);
             if (khachHang != null) {
                 session.remove(khachHang);
             }

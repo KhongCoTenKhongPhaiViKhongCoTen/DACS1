@@ -17,7 +17,7 @@ public class VaitroRepositoryImpl implements VaitroRepository {
     @Override
     public Optional<Vaitro> findById(Integer id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Vaitro vaitro = session.get(Vaitro.class, id);
+            Vaitro vaitro = session.find(Vaitro.class, id);
             return Optional.ofNullable(vaitro);
         }
     }
@@ -61,7 +61,7 @@ public class VaitroRepositoryImpl implements VaitroRepository {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            Vaitro vaitro = session.get(Vaitro.class, id);
+            Vaitro vaitro = session.find(Vaitro.class, id);
             if (vaitro != null) {
                 session.remove(vaitro);
             }

@@ -19,7 +19,7 @@ public class SanPhamRepositoryImpl implements SanPhamRepository {
     @Override
     public Optional<SanPham> findById(Integer id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            SanPham sanPham = session.get(SanPham.class, id);
+            SanPham sanPham = session.find(SanPham.class, id);
             return Optional.ofNullable(sanPham);
         }
     }
@@ -83,7 +83,7 @@ public class SanPhamRepositoryImpl implements SanPhamRepository {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            SanPham sanPham = session.get(SanPham.class, id);
+            SanPham sanPham = session.find(SanPham.class, id);
             if (sanPham != null) {
                 session.remove(sanPham);
             }

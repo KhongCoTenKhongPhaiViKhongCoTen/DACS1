@@ -3,7 +3,6 @@ package com.shopapp.repository.impl;
 import com.shopapp.entity.DonHang;
 import com.shopapp.entity.KhachHang;
 import com.shopapp.entity.NguoiDung;
-import com.shopapp.entity.Vaitro;
 import com.shopapp.repository.DonHangRepository;
 import com.shopapp.util.HibernateUtil;
 import java.util.List;
@@ -20,7 +19,7 @@ public class DonHangRepositoryImpl implements DonHangRepository {
     @Override
     public Optional<DonHang> findById(Integer id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            DonHang donHang = session.get(DonHang.class, id);
+            DonHang donHang = session.find(DonHang.class, id);
             return Optional.ofNullable(donHang);
         }
     }
@@ -94,7 +93,7 @@ public class DonHangRepositoryImpl implements DonHangRepository {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            DonHang donHang = session.get(DonHang.class, id);
+            DonHang donHang = session.find(DonHang.class, id);
             if (donHang != null) {
                 session.remove(donHang);
             }

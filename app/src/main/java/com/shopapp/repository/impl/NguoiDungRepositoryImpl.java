@@ -19,7 +19,7 @@ public class NguoiDungRepositoryImpl implements NguoiDungRepository {
     @Override
     public Optional<NguoiDung> findById(Integer id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            NguoiDung nguoiDung = session.get(NguoiDung.class, id);
+            NguoiDung nguoiDung = session.find(NguoiDung.class, id);
             // Initialize lazy associations to avoid issues when session is closed
             if (nguoiDung != null && nguoiDung.getRole() != null) {
                 // Force initialization of role and its permissions
@@ -105,7 +105,7 @@ public class NguoiDungRepositoryImpl implements NguoiDungRepository {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            NguoiDung nguoiDung = session.get(NguoiDung.class, id);
+            NguoiDung nguoiDung = session.find(NguoiDung.class, id);
             if (nguoiDung != null) {
                 session.remove(nguoiDung);
             }
