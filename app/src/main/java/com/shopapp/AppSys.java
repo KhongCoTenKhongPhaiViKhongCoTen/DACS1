@@ -15,6 +15,12 @@ public class AppSys {
     private Set<Quyen> quyenSet = new HashSet<>();
 
     public static void setNguoiDung(NguoiDung nguoiDung) {
+        if (nguoiDung == null) {
+            Self.nguoiDung = null;
+            Self.quyenSet = new HashSet<>();
+            return;
+        }
+
         if (Self.nguoiDung != null) {
             throw new IllegalStateException("NguoiDung đã được thiết lập. Không thể thay đổi.");
         }
@@ -25,11 +31,9 @@ public class AppSys {
          * và lưu vào quyenSet để tiện kiểm tra quyền trong suốt phiên làm việc của ứng dụng.
          * 
          */
-        if (nguoiDung != null) {
-            Self.quyenSet = nguoiDung.getPermissions();
+        Self.quyenSet = nguoiDung.getPermissions();
 
-            IO.println("Quyen Truy cap nguoi dung " + nguoiDung.getUsername() + " " + Self.quyenSet.toString());
-        }
+        IO.println("Quyen Truy cap nguoi dung " + nguoiDung.getUsername() + " " + Self.quyenSet.toString());
     }
 
     public static NguoiDung getNguoiDung() {

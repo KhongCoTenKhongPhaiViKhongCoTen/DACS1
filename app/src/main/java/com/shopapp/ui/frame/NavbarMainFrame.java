@@ -65,8 +65,10 @@ public class NavbarMainFrame {
             AutoLoginManager.clear();
             javax.swing.SwingUtilities.invokeLater(() -> {
                 java.awt.Window window = javax.swing.SwingUtilities.getWindowAncestor(logoutButton);
-                if (window != null)
+                if (window != null) {
                     window.dispose();
+                    AppSys.setNguoiDung(null);
+                }
                 new Login();
             });
         });
