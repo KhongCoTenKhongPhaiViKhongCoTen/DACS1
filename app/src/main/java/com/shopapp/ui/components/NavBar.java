@@ -89,14 +89,6 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         // State tracker
         boolean[] isExpanded = { false };
 
-        // Indicator line shown when expanded
-        JPanel indicator = new JPanel();
-        indicator.setOpaque(true);
-        indicator.setBackground(theme.accent);
-        indicator.setPreferredSize(new Dimension(4, 0));
-        indicator.putClientProperty("isIndicator", Boolean.TRUE);
-        indicator.setVisible(false);
-
         // Content panel for header + sub-items
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
@@ -135,7 +127,6 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         btnToggle.addActionListener(e -> {
             isExpanded[0] = !isExpanded[0];
             subItemsPanel.setVisible(isExpanded[0]);
-            indicator.setVisible(isExpanded[0]);
 
             sectionPanel.revalidate();
             sectionPanel.repaint();
@@ -164,7 +155,6 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         contentPanel.add(Box.createVerticalStrut(5)); // ← Space trước sub-items
         contentPanel.add(subItemsPanel);
 
-        sectionPanel.add(indicator, BorderLayout.WEST);
         sectionPanel.add(contentPanel, BorderLayout.CENTER);
 
         return sectionPanel;

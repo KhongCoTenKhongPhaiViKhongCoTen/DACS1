@@ -14,19 +14,22 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 
 public class NavbarMainFrame {
-    static NguoiDung currentUser = AppSys.getNguoiDung();
 
     public static void init(NavBar navBar) {
 
         navBar.addHeader(accountNavBar());
 
         navBar.addNavButton("🏠", "Trang chủ", PageKey.HOME);
+
+        navBar.addNavExpandableSection("", "Quản lý tài khoản",
+                PageKey.AccountManagement.getItemName(),
+                PageKey.AccountManagement.getListkey());
 
         navBar.addVerticalGlue();
         navBar.addNavButton("⚙️", "Cài đặt", PageKey.SETTINGS);
@@ -40,7 +43,7 @@ public class NavbarMainFrame {
         accountNavBar.setLayout(new javax.swing.BoxLayout(accountNavBar, javax.swing.BoxLayout.Y_AXIS));
         accountNavBar.setBorder(new EmptyBorder(18, 16, 18, 16));
         accountNavBar.setOpaque(true);
-        accountNavBar.setBackground(theme.background);
+        accountNavBar.putClientProperty("themeBg", "background");
         accountNavBar.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
 
         String username = (currentUser != null) ? currentUser.getUsername() : "Chưa đăng nhập";
@@ -52,43 +55,45 @@ public class NavbarMainFrame {
         avatar.setPreferredSize(new Dimension(56, 56));
         avatar.setMaximumSize(new Dimension(56, 56));
         avatar.setOpaque(true);
-        avatar.setBackground(theme.accent);
-        avatar.setForeground(theme.buttonForeground);
-        avatar.setBorder(BorderFactory.createLineBorder(theme.borderColor, 1));
+        avatar.putClientProperty("themeBg", "accent");
+        avatar.putClientProperty("themeFg", "buttonForeground");
+        avatar.putClientProperty("isAvatar", Boolean.TRUE);
 
         JLabel lblUsername = new JLabel(username);
         lblUsername.setFont(ThemeManager.getBoldFont(15));
-        lblUsername.setForeground(theme.textPrimary);
+        lblUsername.putClientProperty("themeText", "primary");
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new javax.swing.BoxLayout(infoPanel, javax.swing.BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
+        infoPanel.putClientProperty("themeBg", "background");
         infoPanel.add(lblUsername);
 
         if (!fullName.isBlank()) {
             JLabel lblFullName = new JLabel(fullName);
             lblFullName.setFont(ThemeManager.getFont(13));
-            lblFullName.setForeground(theme.textSecondary);
+            lblFullName.putClientProperty("themeText", "secondary");
             infoPanel.add(lblFullName);
         }
 
         if (!role.isBlank()) {
             JLabel lblRole = new JLabel(role);
             lblRole.setFont(ThemeManager.getFont(13));
-            lblRole.setForeground(theme.textSecondary);
+            lblRole.putClientProperty("themeText", "secondary");
             infoPanel.add(lblRole);
         }
 
         if (currentUser == null) {
             JLabel lblHint = new JLabel("Vui lòng đăng nhập để tiếp tục");
             lblHint.setFont(ThemeManager.getFont(13));
-            lblHint.setForeground(theme.textSecondary);
+            lblHint.putClientProperty("themeText", "secondary");
             infoPanel.add(lblHint);
         }
 
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new javax.swing.BoxLayout(topPanel, javax.swing.BoxLayout.X_AXIS));
         topPanel.setOpaque(false);
+        topPanel.putClientProperty("themeBg", "background");
         topPanel.add(avatar);
         topPanel.add(Box.createHorizontalStrut(12));
         topPanel.add(infoPanel);
@@ -99,12 +104,121 @@ public class NavbarMainFrame {
 
         JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
         separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        separator.setForeground(theme.borderColor);
-        separator.setOpaque(true);
-        separator.setBackground(theme.borderColor);
+        separator.putClientProperty("themeFg", "borderColor");
+        separator.putClientProperty("themeBg", "borderColor");
         accountNavBar.add(separator);
         accountNavBar.add(Box.createVerticalStrut(14));
 
+        // Apply initial theme colors
+        applyAccountNavBarTheme(accountNavBar, theme);
+
+        // Add listener for theme changes
+        ThemeManager.addThemeChangeListener(new ThemeManager.ThemeChangeListener() {
+            @Override
+            public void onThemeChanged(Theme newTheme) {
+                applyAccountNavBarTheme(accountNavBar, newTheme);
+            }
+        });
+
         return accountNavBar;
+    }
+
+    private static void applyAccountNavBarTheme(JPanel accountNavBar, Theme theme) {
+        applyThemeToComponentRecursive(accountNavBar, theme);
+    }
+
+    private static void applyThemeToComponentRecursive(Component comp, Theme theme) {
+        if (comp instanceof JPanel) {
+            JPanel panel = (JPanel) comp;
+            Object bgProp = panel.getClientProperty("themeBg");
+            if (bgProp != null) {
+                switch (bgProp.toString()) {
+                    case "background":
+                        panel.setBackground(theme.background);
+                        break;
+                    case "accent":
+                        panel.setBackground(theme.accent);
+                        break;
+                    case "borderColor":
+                        panel.setBackground(theme.borderColor);
+                        break;
+                }
+            }
+        } else if (comp instanceof JLabel) {
+            JLabel lbl = (JLabel) comp;
+            Object fgProp = lbl.getClientProperty("themeFg");
+            Object textProp = lbl.getClientProperty("themeText");
+            Object borderProp = lbl.getClientProperty("themeBorder");
+            Object isAvatar = lbl.getClientProperty("isAvatar");
+
+            if (fgProp != null) {
+                switch (fgProp.toString()) {
+                    case "buttonForeground":
+                        lbl.setForeground(theme.buttonForeground);
+                        break;
+                    case "textPrimary":
+                        lbl.setForeground(theme.textPrimary);
+                        break;
+                    case "textSecondary":
+                        lbl.setForeground(theme.textSecondary);
+                        break;
+                }
+            } else if (textProp != null) {
+                switch (textProp.toString()) {
+                    case "primary":
+                        lbl.setForeground(theme.textPrimary);
+                        break;
+                    case "secondary":
+                        lbl.setForeground(theme.textSecondary);
+                        break;
+                }
+            }
+
+            if (borderProp != null) {
+                switch (borderProp.toString()) {
+                    case "borderColor":
+                        lbl.setForeground(theme.borderColor);
+                        break;
+                }
+            }
+
+            Object bgProp = lbl.getClientProperty("themeBg");
+            if (bgProp != null) {
+                switch (bgProp.toString()) {
+                    case "background":
+                        lbl.setBackground(theme.background);
+                        break;
+                    case "accent":
+                        lbl.setBackground(theme.accent);
+                        break;
+                    case "borderColor":
+                        lbl.setBackground(theme.borderColor);
+                        break;
+                }
+            }
+
+            // Handle avatar border specially
+            if (Boolean.TRUE.equals(isAvatar)) {
+                lbl.setBorder(BorderFactory.createLineBorder(theme.borderColor, 1));
+            }
+        } else if (comp instanceof JSeparator) {
+            JSeparator separator = (JSeparator) comp;
+            Object fgProp = separator.getClientProperty("themeFg");
+            Object bgProp = separator.getClientProperty("themeBg");
+
+            if (fgProp != null && "borderColor".equals(fgProp.toString())) {
+                separator.setForeground(theme.borderColor);
+            }
+            if (bgProp != null && "borderColor".equals(bgProp.toString())) {
+                separator.setBackground(theme.borderColor);
+            }
+        }
+
+        if (comp instanceof Container) {
+            Container container = (Container) comp;
+            for (Component child : container.getComponents()) {
+                applyThemeToComponentRecursive(child, theme);
+            }
+        }
     }
 }

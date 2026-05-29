@@ -1,5 +1,7 @@
 package com.shopapp.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -29,10 +31,10 @@ public class SanPham {
     private NhaCungCap supplier;
 
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
-    private Double unitPrice;
+    private BigDecimal unitPrice;
 
     @Column(name = "cost_price", precision = 10, scale = 2)
-    private Double costPrice;
+    private BigDecimal costPrice;
 
     @Column(name = "size", length = 20)
     private String size;
@@ -98,19 +100,19 @@ public class SanPham {
         this.supplier = supplier;
     }
 
-    public Double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
 
-    public Double getCostPrice() {
+    public BigDecimal getCostPrice() {
         return costPrice;
     }
 
-    public void setCostPrice(Double costPrice) {
+    public void setCostPrice(BigDecimal costPrice) {
         this.costPrice = costPrice;
     }
 

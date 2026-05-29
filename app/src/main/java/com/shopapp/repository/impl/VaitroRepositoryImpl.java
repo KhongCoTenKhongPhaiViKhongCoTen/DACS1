@@ -2,65 +2,86 @@ package com.shopapp.repository.impl;
 
 import com.shopapp.entity.Vaitro;
 import com.shopapp.repository.VaitroRepository;
-import java.util.ArrayList;
+import com.shopapp.util.HibernateUtil;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 /**
- * In-memory implementation of VaitroRepository for demonstration purposes.
- * In a real application, this would be replaced with a JPA/Hibernate implementation.
+ * Hibernate implementation of VaitroRepository.
+ * Uses Hibernate for database persistence.
  */
 public class VaitroRepositoryImpl implements VaitroRepository {
 
-    private final List<Vaitro> vaitroList = new CopyOnWriteArrayList<>();
-    private int nextId = 1;
-
     @Override
     public Optional<Vaitro> findById(Integer id) {
-        return vaitroList.stream()
-                .filter(vaitro -> vaitro.getRoleId().equals(id))
-                .findFirst();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Vaitro vaitro = session.get(Vaitro.class, id);
+            return Optional.ofNullable(vaitro);
+        }
     }
 
     @Override
     public List<Vaitro> findAll() {
-        return new ArrayList<>(vaitroList);
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("from Vaitro", Vaitro.class).list();
+        }
     }
 
     @Override
     public Optional<Vaitro> findByTenVaiTro(String tenVaiTro) {
-        return vaitroList.stream()
-                .filter(vaitro -> vaitro.getRoleName().equals(tenVaiTro))
-                .findFirst();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Vaitro vaitro = session.createQuery(
+                    "from Vaitro where roleName = :tenVaiTro", Vaitro.class)
+                    .setParameter("tenVaiTro", tenVaiTro)
+                    .uniqueResult();
+            return Optional.ofNullable(vaitro);
+        }
     }
 
     @Override
     public Vaitro save(Vaitro vaitro) {
-        if (vaitro.getRoleId() == null) {
-            // New entity
-            vaitro.setRoleId(nextId++);
-            vaitroList.add(vaitro);
-        } else {
-            // Existing entity - update
-            for (int i = 0; i < vaitroList.size(); i++) {
-                if (vaitroList.get(i).getRoleId().equals(vaitro.getRoleId())) {
-                    vaitroList.set(i, vaitro);
-                    break;
-                }
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Vaitro saved = session.merge(vaitro);
+            transaction.commit();
+            return saved;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
             }
+            throw e;
         }
-        return vaitro;
     }
 
     @Override
     public void deleteById(Integer id) {
-        vaitroList.removeIf(vaitro -> vaitro.getRoleId().equals(id));
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Vaitro vaitro = session.get(Vaitro.class, id);
+            if (vaitro != null) {
+                session.remove(vaitro);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     @Override
     public boolean existsByTenVaiTro(String tenVaiTro) {
-        return vaitroList.stream()
-                .anyMatch(vaitro -> vaitro.getRoleName().equals(tenVaiTro));
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Long count = session.createQuery(
+                    "select count(v) from Vaitro v where v.roleName = :tenVaiTro", Long.class)
+                    .setParameter("tenVaiTro", tenVaiTro)
+                    .uniqueResult();
+            return count != null && count > 0;
+        }
     }
 }

@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(Move-Item *)"
+      "PowerShell(Move-Item *)",
+      "Bash(mvn compile *)",
+      "Bash(javac -cp \"C:\\\\Users\\\\ADMIN\\\\.m2\\\\repository\\\\com\\\\mysql\\\\mysql-connector-j\\\\9.3.0\\\\mysql-connector-j-9.3.0.jar\" CheckVaitro.java)"
     ]
   }
 }

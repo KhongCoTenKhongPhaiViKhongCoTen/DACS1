@@ -61,15 +61,6 @@ public class MainFrame extends JFrame
         navbar.addPageChangeListener(this);
     }
 
-    private JPanel createPlaceholder(String title) {
-        JPanel panel = new JPanel(new BorderLayout());
-        JLabel lblTitle = new JLabel(title);
-        lblTitle.setFont(ThemeManager.getBoldFont(32));
-        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-        panel.add(lblTitle, BorderLayout.CENTER);
-        return panel;
-    }
-
     private void applyTheme() {
         Theme theme = ThemeManager.getCurrentTheme();
         getContentPane().setBackground(theme.background);

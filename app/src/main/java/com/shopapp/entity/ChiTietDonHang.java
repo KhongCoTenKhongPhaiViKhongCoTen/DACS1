@@ -1,5 +1,7 @@
 package com.shopapp.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -23,12 +25,12 @@ public class ChiTietDonHang {
     private Integer quantity;
 
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
-    private Double unitPrice;
+    private BigDecimal unitPrice;
 
     // @Formula is not standard JPA, but we can calculate in Java or use @Column with insertable=false, updatable=false
     // For simplicity, we'll calculate it in getter or use a database-generated column
     @Column(name = "total_price", precision = 10, scale = 2, insertable = false, updatable = false)
-    private Double totalPrice;
+    private BigDecimal totalPrice;
 
     @Column(name = "size", length = 20)
     private String size;
@@ -69,26 +71,26 @@ public class ChiTietDonHang {
         this.quantity = quantity;
     }
 
-    public Double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
 
-    public Double getTotalPrice() {
+    public BigDecimal getTotalPrice() {
         // Calculate on the fly if not persisted, or return the database value
         if (totalPrice != null) {
             return totalPrice;
         }
         if (quantity != null && unitPrice != null) {
-            return quantity * unitPrice;
+            return unitPrice.multiply(BigDecimal.valueOf(quantity));
         }
-        return 0.0;
+        return BigDecimal.ZERO;
     }
 
-    public void setTotalPrice(Double totalPrice) {
+    public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
 

@@ -1,6 +1,8 @@
 package com.shopapp.entity;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +22,7 @@ public class ThanhToan {
     private LocalDateTime paymentDate;
 
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
-    private Double amount;
+    private BigDecimal amount;
 
     @Column(name = "payment_method", nullable = false, length = 50)
     private String paymentMethod;
@@ -56,11 +58,11 @@ public class ThanhToan {
         this.paymentDate = paymentDate;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

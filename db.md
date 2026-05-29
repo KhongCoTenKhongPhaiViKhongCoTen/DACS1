@@ -9,7 +9,7 @@ Tài liệu này mô tả mô hình Quan hệ-Entity (ER) cho hệ thống quả
 ### 1. Người dùng (Người dùng)
 
 | Thuộc tính | Kiểu | Mô tả |
-|-----------|------|-------------|
+|-|-|-|
 | user_id | PK, INT | Định danh duy nhất |
 | username | VARCHAR(50) | Tên đăng nhập |
 | password_hash | VARCHAR(255) | Mật khẩu đã được băm |

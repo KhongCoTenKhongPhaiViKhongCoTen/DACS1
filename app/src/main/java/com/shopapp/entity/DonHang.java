@@ -1,6 +1,8 @@
 package com.shopapp.entity;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -31,16 +33,16 @@ public class DonHang {
     private String status;
 
     @Column(name = "subtotal", precision = 10, scale = 2)
-    private Double subtotal;
+    private BigDecimal subtotal;
 
     @Column(name = "tax_amount", precision = 10, scale = 2)
-    private Double taxAmount;
+    private BigDecimal taxAmount;
 
     @Column(name = "discount_amount", precision = 10, scale = 2)
-    private Double discountAmount;
+    private BigDecimal discountAmount;
 
     @Column(name = "total_amount", precision = 10, scale = 2)
-    private Double totalAmount;
+    private BigDecimal totalAmount;
 
     @Column(name = "notes")
     private String notes;
@@ -98,35 +100,35 @@ public class DonHang {
         this.status = status;
     }
 
-    public Double getSubtotal() {
+    public BigDecimal getSubtotal() {
         return subtotal;
     }
 
-    public void setSubtotal(Double subtotal) {
+    public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
 
-    public Double getTaxAmount() {
+    public BigDecimal getTaxAmount() {
         return taxAmount;
     }
 
-    public void setTaxAmount(Double taxAmount) {
+    public void setTaxAmount(BigDecimal taxAmount) {
         this.taxAmount = taxAmount;
     }
 
-    public Double getDiscountAmount() {
+    public BigDecimal getDiscountAmount() {
         return discountAmount;
     }
 
-    public void setDiscountAmount(Double discountAmount) {
+    public void setDiscountAmount(BigDecimal discountAmount) {
         this.discountAmount = discountAmount;
     }
 
-    public Double getTotalAmount() {
+    public BigDecimal getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(Double totalAmount) {
+    public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
     }
 

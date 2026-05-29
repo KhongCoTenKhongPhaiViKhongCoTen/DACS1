@@ -60,6 +60,7 @@ public abstract class AbstractTablePage extends JPanel implements ThemeChangeLis
 
     // ===== Filters =====
     protected JTextField tfSearch;
+    protected JLabel tfSearchLabel;
 
     protected int rowHeightTable = 30;
 
@@ -73,6 +74,8 @@ public abstract class AbstractTablePage extends JPanel implements ThemeChangeLis
         initBase();
         initUI(columnTableNames);
         initEvents();
+        // Apply initial theme
+        applyTheme();
         // Register as theme change listener to automatically update theme
         ThemeManager.addThemeChangeListener(this);
     }
@@ -128,11 +131,10 @@ public abstract class AbstractTablePage extends JPanel implements ThemeChangeLis
 
         // Khởi tạo components của filter
         tfSearch = new JTextField(15);
-
-        JLabel searchLabel = new JLabel("Tìm theo ID:");
+        tfSearchLabel = new JLabel("Tìm theo ID:");
 
         filterPanel.add(btnFilter);
-        filterPanel.add(searchLabel);
+        filterPanel.add(tfSearchLabel);
         filterPanel.add(tfSearch);
         // Cho phép class con thêm filters tùy chỉnh
         addCustomFilters();
@@ -239,6 +241,81 @@ public abstract class AbstractTablePage extends JPanel implements ThemeChangeLis
     }
 
     // ========================================
+    // THEME METHODS
+    // ========================================
+
+    /**
+     * Áp dụng theme hiện tại cho các component.
+     */
+    protected void applyTheme() {
+        Theme theme = ThemeManager.getCurrentTheme();
+
+        // Áp dụng theme cho các panel
+        if (topPanel != null) {
+            topPanel.setBackground(theme.background);
+        }
+        if (buttonPanel != null) {
+            buttonPanel.setBackground(theme.background);
+        }
+        if (filterPanel != null) {
+            filterPanel.setBackground(theme.background);
+        }
+        if (table != null) {
+            table.setBackground(theme.background);
+            table.setForeground(theme.foreground);
+            table.setGridColor(theme.borderColor);
+            table.setFont(theme.getFont(12));
+            table.setSelectionBackground(theme.accent);
+            table.setSelectionForeground(theme.buttonForeground);
+        }
+        if (scrollPane != null) {
+            scrollPane.getViewport().setBackground(theme.background);
+        }
+
+        // Áp dụng theme cho buttons
+        if (btnRefresh != null) {
+            applyButtonTheme(btnRefresh, theme);
+        }
+        if (btnAdd != null) {
+            applyButtonTheme(btnAdd, theme);
+        }
+        if (btnEdit != null) {
+            applyButtonTheme(btnEdit, theme);
+        }
+        if (btnDelete != null) {
+            applyButtonTheme(btnDelete, theme);
+        }
+        if (btnFilter != null) {
+            applyButtonTheme(btnFilter, theme);
+        }
+
+        // Áp dụng theme cho text field và label
+        if (tfSearch != null) {
+            tfSearch.setBackground(theme.buttonBackground);
+            tfSearch.setForeground(theme.textPrimary);
+            tfSearch.setFont(theme.getFont(12));
+        }
+        if (tfSearchLabel != null) {
+            tfSearchLabel.setForeground(theme.textPrimary);
+            tfSearchLabel.setFont(theme.getFont(12));
+        }
+    }
+
+    /**
+     * Áp dụng theme cho một button.
+     *
+     * @param button Button cần áp dụng theme
+     * @param theme Theme hiện tại
+     */
+    private void applyButtonTheme(javax.swing.JButton button, Theme theme) {
+        button.setBackground(theme.buttonBackground);
+        button.setForeground(theme.buttonForeground);
+        button.setFont(theme.getFont(12));
+        button.setFocusPainted(false);
+        button.setBorderPainted(true);
+    }
+
+    // ========================================
     // UTILITY METHODS
     // ========================================
 
@@ -340,7 +417,6 @@ public abstract class AbstractTablePage extends JPanel implements ThemeChangeLis
      */
     @Override
     public void onThemeChanged(Theme theme) {
-        // Default implementation does nothing
-        // Subclasses can override to handle theme changes
+        applyTheme(); // Fixed: This line was being interpreted as a duplicate method declaration.
     }
 }
