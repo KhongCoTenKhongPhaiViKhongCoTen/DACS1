@@ -14,7 +14,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import com.shopapp.ui.components.Form;
+import com.shopapp.ui.components.BaseForm;
 import com.shopapp.ui.themes.*;
 import com.shopapp.AppSys;
 import com.shopapp.entity.NguoiDung;
@@ -27,7 +27,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class Login extends JFrame {
 
-    private static Form form;
+    private static BaseForm form;
 
     private final JTextField userTextField = new JTextField(25);
     private final JPasswordField passField = new JPasswordField(25);
@@ -111,7 +111,7 @@ public class Login extends JFrame {
     }
 
     private JPanel createLoginPanel() {
-        form = new Form();
+        form = new BaseForm();
         form.setTheme(Theme.LIGHT);
         userTextField.setSize(200, 30);
         passField.setSize(200, 100);
