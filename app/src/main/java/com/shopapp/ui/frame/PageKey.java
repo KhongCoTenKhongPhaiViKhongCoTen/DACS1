@@ -39,13 +39,13 @@ public class PageKey {
     public static class AccountManagement {
         public static final String NGUOI_DUNG = "nd";
         public static final String VAI_TRO = "vt";
-        public static final String NHOM_QUYEN = "nq";
+        public static final String QUYEN = "q";
 
         public static String[] getListkey() {
             return new String[] {
                     AccountManagement.NGUOI_DUNG,
                     AccountManagement.VAI_TRO,
-                    AccountManagement.NHOM_QUYEN
+                    AccountManagement.QUYEN
             };
         }
 

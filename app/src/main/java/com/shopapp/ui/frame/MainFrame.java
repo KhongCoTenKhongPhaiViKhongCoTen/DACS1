@@ -7,6 +7,7 @@ import com.shopapp.AppSys;
 import com.shopapp.ui.components.NavBar;
 import com.shopapp.ui.frame.panels.HomePage;
 import com.shopapp.ui.frame.panels.NguoiDungPage;
+import com.shopapp.ui.frame.panels.QuyenPage;
 import com.shopapp.ui.frame.panels.SettingsPage;
 import com.shopapp.ui.frame.panels.VaiTroPage;
 import com.shopapp.ui.themes.*;
@@ -24,6 +25,7 @@ public class MainFrame extends JFrame
     private SettingsPage settingsPage = new SettingsPage();
     private NguoiDungPage nguoiDungPage;
     private VaiTroPage vaiTroPage;
+    private QuyenPage quyenPage;
 
     public MainFrame() {
         initFrame();
@@ -57,6 +59,9 @@ public class MainFrame extends JFrame
 
             vaiTroPage = new VaiTroPage();
             contentPanel.add(vaiTroPage, PageKey.AccountManagement.VAI_TRO);
+
+            quyenPage = new QuyenPage();
+            contentPanel.add(quyenPage, PageKey.AccountManagement.QUYEN);
         }
 
         add(contentPanel, BorderLayout.CENTER);
