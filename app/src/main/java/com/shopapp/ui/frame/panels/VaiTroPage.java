@@ -1,14 +1,17 @@
 package com.shopapp.ui.frame.panels;
 
 import java.util.List;
+import java.util.Optional;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import javax.swing.SwingUtilities;
 
 import com.shopapp.entity.Vaitro;
 import com.shopapp.repository.impl.VaitroRepositoryImpl;
 import com.shopapp.service.VaitroService;
 import com.shopapp.service.impl.VaitroServiceImpl;
 import com.shopapp.ui.components.BasePage;
+import com.shopapp.ui.frame.panels.Dialog.VaiTroDialog;
 
 public class VaiTroPage extends BasePage {
 
@@ -72,20 +75,42 @@ public class VaiTroPage extends BasePage {
 
     @Override
     protected void handleAdd() {
-
-        // VaiTroDialog dialog = new VaiTroDialog(null);
-        // dialog.setVisible(true);
-        // if (dialog.isSaved()) {
-        // showTableData(true);
+        VaiTroDialog dialog = new VaiTroDialog(null, null, getRoleService());
+        dialog.setVisible(true);
+        if (dialog.isSucceeded()) {
+            showTableData(true);
+        }
     }
 
     @Override
     protected void handleEdit() {
         int selectedId = getSelectedId();
         if (selectedId == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một người dùng từ bảng để chỉnh sửa.", "Thông báo",
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một vai trò từ bảng để chỉnh sửa.", "Thông báo",
                     JOptionPane.WARNING_MESSAGE);
             return;
+        }
+
+        try {
+            Optional<Vaitro> role = roleService.findById(selectedId);
+            if (role.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin vai trò được chọn.", "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            VaiTroDialog dialog = new VaiTroDialog(
+                    (JFrame) SwingUtilities.getWindowAncestor(this),
+                    role.get(),
+                    roleService);
+            dialog.setVisible(true);
+            if (dialog.isSucceeded()) {
+                showTableData(true);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy thông tin vai trò: " + ex.getMessage(), "Lỗi hệ thống",
+                    JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
 
@@ -93,7 +118,7 @@ public class VaiTroPage extends BasePage {
     protected void handleDelete() {
         int selectedId = getSelectedId();
         if (selectedId == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một người dùng từ bảng để xóa", "Thông báo",
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một vai trò từ bảng để xóa", "Thông báo",
                     JOptionPane.WARNING_MESSAGE);
             return;
         }

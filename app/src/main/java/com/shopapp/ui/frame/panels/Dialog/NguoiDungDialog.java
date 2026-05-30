@@ -13,22 +13,17 @@ import com.shopapp.entity.Vaitro;
 import com.shopapp.service.NguoiDungService;
 import com.shopapp.service.VaitroService;
 import com.shopapp.ui.components.BaseForm;
-import com.shopapp.ui.themes.Theme;
+import com.shopapp.ui.components.BaseDialog;
 import com.shopapp.ui.themes.ThemeManager;
 
 /**
  * Dialog dùng chung cho việc Thêm mới và Chỉnh sửa Người dùng.
  * Hỗ trợ giao diện GridBagLayout, đồng bộ theme và kiểm tra dữ liệu đầu vào.
+ *
+ * ⚠️ Lưu ý: gọi buildAndShow() ở cuối constructor SAU KHI assign hết fields,
+ * theo yêu cầu của BaseDialog.
  */
-public class NguoiDungDialog extends JDialog {
-
-    // ── Hằng số font/size dùng chung ──────────────────────────────────────────
-    private static final int FIELD_COLUMNS = 28;
-    private static final int FONT_FIELD = 18;
-    private static final int FONT_LABEL = 18;
-    private static final int FONT_TITLE = 22;
-    private static final int FONT_BUTTON = 14;
-    private static final int PADDING = 10;
+public class NguoiDungDialog extends BaseDialog {
 
     // ── Services & entity ─────────────────────────────────────────────────────
     private final NguoiDung user; // null = Thêm mới, khác null = Sửa thông tin
@@ -41,44 +36,41 @@ public class NguoiDungDialog extends JDialog {
     private JTextField tfFullName;
     private JTextField tfEmail;
     private JTextField tfPhone;
-    private JComboBox<Vaitro> cbRole;
+    private JComboBox<Vaitro> cbRole; // khởi tạo trong createForm()
     private JCheckBox chkActive;
 
-    // ── Layout components ─────────────────────────────────────────────────────
-    private JButton btnSave;
-    private JButton btnCancel;
-    private JLabel titleLabel;
-    private JPanel headerPanel;
-    private JPanel buttonPanel;
+    // ── Constructor ───────────────────────────────────────────────────────────
 
-    private boolean succeeded = false;
+    /**
+     * @param owner       Cửa sổ cha
+     * @param user        null = Thêm mới, khác null = Sửa thông tin
+     * @param userService Service xử lý NguoiDung
+     * @param roleService Service xử lý Vaitro
+     */
+    public NguoiDungDialog(
+            Frame owner,
+            NguoiDung user,
+            NguoiDungService userService,
+            VaitroService roleService) {
+        super(owner, user == null ? "Thêm Người Dùng Mới" : "Cập Nhật Thông Tin Người Dùng");
 
-    public NguoiDungDialog(Frame owner, NguoiDung user, NguoiDungService userService, VaitroService roleService) {
-        super(owner, user == null ? "Thêm Người Dùng Mới" : "Cập Nhật Thông Tin Người Dùng", true);
+        // Assign fields TRƯỚC khi gọi buildAndShow()
         this.user = user;
         this.userService = userService;
         this.roleService = roleService;
 
-        initializeUI();
-        fillData();
-        applyCurrentTheme();
-
-        pack();
-        setLocationRelativeTo(owner);
+        // Gọi SAU CÙNG — lúc này createForm() và fillData() mới được gọi
+        buildAndShow();
     }
 
-    // ── Khởi tạo giao diện ────────────────────────────────────────────────────
+    // ── Tạo form ──────────────────────────────────────────────────────────────
 
-    private void initializeUI() {
-        setLayout(new BorderLayout());
-
-        // Header
-        headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        titleLabel = new JLabel(user == null ? "THÊM NGƯỜI DÙNG MỚI" : "CẬP NHẬT THÔNG TIN NGƯỜI DÙNG");
-        titleLabel.setFont(ThemeManager.getBoldFont(FONT_TITLE));
-        headerPanel.add(titleLabel);
-
-        // Form
+    /**
+     * Tạo các component form. Lúc này tất cả fields (user, roleService, ...)
+     * đã được assign nên có thể dùng trực tiếp.
+     */
+    @Override
+    protected JPanel createForm() {
         BaseForm form = new BaseForm();
         form.setBorder(new EmptyBorder(PADDING, PADDING + 5, PADDING, PADDING + 5));
 
@@ -90,13 +82,6 @@ public class NguoiDungDialog extends JDialog {
 
         cbRole = new JComboBox<>();
         cbRole.setFont(ThemeManager.getFont(FONT_FIELD));
-        try {
-            List<Vaitro> roles = roleService.findAll();
-            for (Vaitro role : roles)
-                cbRole.addItem(role);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         chkActive = new JCheckBox("Hoạt động");
         chkActive.setSelected(true);
@@ -110,41 +95,33 @@ public class NguoiDungDialog extends JDialog {
         form.addRow(new JLabel("Vai trò *"), cbRole);
         form.addRow(new JLabel("Trạng thái"), chkActive);
 
-        // Buttons
-        buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        btnSave = new JButton("Lưu");
-        btnCancel = new JButton("Hủy");
-        buttonPanel.add(btnSave);
-        buttonPanel.add(btnCancel);
-
-        add(headerPanel, BorderLayout.NORTH);
-        add(form, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        btnCancel.addActionListener(e -> dispose());
-        btnSave.addActionListener(e -> handleSave());
-    }
-
-    /** Tạo JTextField với thông số chung */
-    private JTextField createTextField() {
-        JTextField tf = new JTextField(FIELD_COLUMNS);
-        tf.setFont(ThemeManager.getFont(FONT_FIELD));
-        return tf;
-    }
-
-    /** Tạo JPasswordField với thông số chung */
-    private JPasswordField createPasswordField() {
-        JPasswordField pf = new JPasswordField(FIELD_COLUMNS);
-        pf.setFont(ThemeManager.getFont(FONT_FIELD));
-        return pf;
+        return form;
     }
 
     // ── Điền dữ liệu khi ở chế độ Sửa ───────────────────────────────────────
 
-    private void fillData() {
+    /**
+     * Populate cbRole từ roleService, sau đó điền dữ liệu entity (nếu ở chế độ
+     * Sửa).
+     * Được gọi bởi buildAndShow() SAU createForm(), nên cbRole đã tồn tại.
+     */
+    @Override
+    protected void fillData() {
+        // 1. Populate danh sách vai trò
+        try {
+            List<Vaitro> roles = roleService.findAll();
+            for (Vaitro role : roles) {
+                cbRole.addItem(role);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // 2. Chế độ Thêm mới → không cần điền thêm
         if (user == null)
             return;
 
+        // 3. Chế độ Sửa → điền dữ liệu entity vào form
         tfUsername.setText(user.getUsername());
         tfUsername.setEnabled(false); // Không cho sửa Username
 
@@ -153,6 +130,7 @@ public class NguoiDungDialog extends JDialog {
         tfPhone.setText(user.getPhone() != null ? user.getPhone() : "");
         chkActive.setSelected(user.getIsActive());
 
+        // Chọn vai trò hiện tại trong combo box
         for (int i = 0; i < cbRole.getItemCount(); i++) {
             Vaitro r = cbRole.getItemAt(i);
             if (user.getRole() != null && r.getRoleId().equals(user.getRole().getRoleId())) {
@@ -162,14 +140,16 @@ public class NguoiDungDialog extends JDialog {
         }
 
         // Không cho tự khóa chính mình
-        if (AppSys.getNguoiDung() != null && user.getUserId().equals(AppSys.getNguoiDung().getUserId())) {
+        if (AppSys.getNguoiDung() != null
+                && user.getUserId().equals(AppSys.getNguoiDung().getUserId())) {
             chkActive.setEnabled(false);
         }
     }
 
-    // ── Xử lý lưu ────────────────────────────────────────────────────────────
+    // ── Xác thực tùy chỉnh ────────────────────────────────────────────────────
 
-    private void handleSave() {
+    @Override
+    protected boolean applyCustomValidation() {
         String username = tfUsername.getText().trim();
         String password = new String(pfPassword.getPassword()).trim();
         String fullName = tfFullName.getText().trim();
@@ -177,63 +157,97 @@ public class NguoiDungDialog extends JDialog {
         String phone = tfPhone.getText().trim();
         Vaitro selectedRole = (Vaitro) cbRole.getSelectedItem();
 
-        // 1. Validation bắt buộc
         if (user == null) {
             if (username.isEmpty() || password.isEmpty() || fullName.isEmpty() || selectedRole == null) {
-                showWarning("Vui lòng điền đầy đủ các trường bắt buộc (*)");
-                return;
+                JOptionPane.showMessageDialog(this,
+                        "Vui lòng điền đầy đủ các trường bắt buộc (*)",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
         } else {
             if (fullName.isEmpty() || selectedRole == null) {
-                showWarning("Vui lòng điền đầy đủ các trường bắt buộc (*)");
-                return;
+                JOptionPane.showMessageDialog(this,
+                        "Vui lòng điền đầy đủ các trường bắt buộc (*)",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
         }
 
         // 2. Kiểm tra độ dài & khoảng trắng
         if (user == null) {
             if (username.contains(" ")) {
-                showWarning("Username không được chứa khoảng trắng");
-                return;
+                JOptionPane.showMessageDialog(this,
+                        "Username không được chứa khoảng trắng",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
             if (username.length() < 3) {
-                showWarning("Username phải có ít nhất 3 ký tự");
-                return;
+                JOptionPane.showMessageDialog(this,
+                        "Username phải có ít nhất 3 ký tự",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
             if (password.length() < 6) {
-                showWarning("Mật khẩu phải có ít nhất 6 ký tự");
-                return;
+                JOptionPane.showMessageDialog(this,
+                        "Mật khẩu phải có ít nhất 6 ký tự",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
         } else {
             if (!password.isEmpty() && password.length() < 6) {
-                showWarning("Mật khẩu mới phải có ít nhất 6 ký tự");
-                return;
+                JOptionPane.showMessageDialog(this,
+                        "Mật khẩu mới phải có ít nhất 6 ký tự",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return false;
             }
         }
 
-        // 3. Kiểm tra trùng Username
+        // 3. Kiểm tra trùng Username (chỉ khi Thêm mới)
         if (user == null) {
             try {
                 if (userService.existsByUsername(username)) {
-                    showError("Tên tài khoản (Username) đã tồn tại trong hệ thống!");
-                    return;
+                    JOptionPane.showMessageDialog(this,
+                            "Tên tài khoản (Username) đã tồn tại trong hệ thống!",
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return false;
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                        "Lỗi khi kiểm tra trùng username: " + ex.getMessage(),
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return false;
             }
         }
 
         // 4. Định dạng Email & SĐT
         if (!email.isEmpty() && !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            showWarning("Định dạng Email không hợp lệ");
-            return;
+            JOptionPane.showMessageDialog(this,
+                    "Định dạng Email không hợp lệ",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return false;
         }
         if (!phone.isEmpty() && !phone.matches("^\\d{10,11}$")) {
-            showWarning("Số điện thoại phải là số và có từ 10 đến 11 chữ số");
-            return;
+            JOptionPane.showMessageDialog(this,
+                    "Số điện thoại phải là số và có từ 10 đến 11 chữ số",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return false;
         }
 
-        // 5. Lưu dữ liệu
+        return true;
+    }
+
+    // ── Xử lý lưu ────────────────────────────────────────────────────────────
+
+    @Override
+    protected void handleSave() {
+        String username = tfUsername.getText().trim();
+        String password = new String(pfPassword.getPassword()).trim();
+        String fullName = tfFullName.getText().trim();
+        String email = tfEmail.getText().trim();
+        String phone = tfPhone.getText().trim();
+        Vaitro selectedRole = (Vaitro) cbRole.getSelectedItem();
+
         try {
             NguoiDung model = (user == null) ? new NguoiDung() : user;
 
@@ -250,79 +264,26 @@ public class NguoiDungDialog extends JDialog {
             model.setPhone(phone.isEmpty() ? null : phone);
             model.setRole(selectedRole);
 
-            if (chkActive.isEnabled())
+            if (chkActive.isEnabled()) {
                 model.setIsActive(chkActive.isSelected());
+            }
 
             userService.save(model);
 
             JOptionPane.showMessageDialog(this,
                     user == null ? "Thêm người dùng mới thành công!" : "Cập nhật thông tin thành công!",
                     "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            succeeded = true;
+
+            succeeded = true; // field của BaseDialog (protected)
             dispose();
+
         } catch (Exception ex) {
-            showError("Lỗi khi lưu dữ liệu người dùng: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi lưu dữ liệu người dùng: " + ex.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
     }
 
-    // ── Helper hiển thị thông báo ─────────────────────────────────────────────
-
-    private void showWarning(String msg) {
-        JOptionPane.showMessageDialog(this, msg, "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-    }
-
-    private void showError(String msg) {
-        JOptionPane.showMessageDialog(this, msg, "Lỗi", JOptionPane.ERROR_MESSAGE);
-    }
-
-    // ── Theme ─────────────────────────────────────────────────────────────────
-
-    public boolean isSucceeded() {
-        return succeeded;
-    }
-
-    private void applyCurrentTheme() {
-        Theme theme = ThemeManager.getCurrentTheme();
-        styleComponents(this, theme);
-        headerPanel.setBackground(theme.background);
-        buttonPanel.setBackground(theme.background);
-        titleLabel.setForeground(theme.textPrimary);
-    }
-
-    private void styleComponents(Container container, Theme theme) {
-        container.setBackground(theme.background);
-        for (Component comp : container.getComponents()) {
-            if (comp instanceof JLabel label) {
-                label.setForeground(theme.textPrimary);
-                label.setFont(ThemeManager.getFont(FONT_LABEL));
-            } else if (comp instanceof JPasswordField pf) {
-                // Check JPasswordField TRƯỚC JTextField vì nó là subclass
-                pf.setBackground(theme.buttonBackground);
-                pf.setForeground(theme.textPrimary);
-                pf.setCaretColor(theme.textPrimary);
-                pf.setFont(ThemeManager.getFont(FONT_FIELD));
-            } else if (comp instanceof JTextField tf) {
-                tf.setBackground(theme.buttonBackground);
-                tf.setForeground(theme.textPrimary);
-                tf.setCaretColor(theme.textPrimary);
-                tf.setFont(ThemeManager.getFont(FONT_FIELD));
-            } else if (comp instanceof JComboBox<?> cb) {
-                cb.setBackground(theme.buttonBackground);
-                cb.setForeground(theme.textPrimary);
-                cb.setFont(ThemeManager.getFont(FONT_FIELD));
-            } else if (comp instanceof JCheckBox chk) {
-                chk.setOpaque(false);
-                chk.setForeground(theme.textPrimary);
-                chk.setFont(ThemeManager.getFont(FONT_FIELD));
-            } else if (comp instanceof JButton btn) {
-                btn.setBackground(theme.buttonBackground);
-                btn.setForeground(theme.buttonForeground);
-                btn.setFont(ThemeManager.getBoldFont(FONT_BUTTON));
-                btn.setFocusPainted(false);
-            } else if (comp instanceof Container childContainer) {
-                styleComponents(childContainer, theme);
-            }
-        }
-    }
+    // isSucceeded() kế thừa từ BaseDialog — KHÔNG khai báo lại ở đây
 }

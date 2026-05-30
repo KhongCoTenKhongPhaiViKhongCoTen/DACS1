@@ -17,7 +17,7 @@ import com.shopapp.ui.themes.ThemeManager;
 import com.shopapp.ui.themes.ThemeManager.ThemeChangeListener;
 
 /**
- * Abstract class chung cho các trang CRUD trong giao diện người dùng.
+ * Abstract class chung cho các trang trong giao diện người dùng.
  * Các class con chỉ cần implement các phương thức abstract và override
  * 
  * Các chức năng mặc định:
@@ -32,7 +32,7 @@ import com.shopapp.ui.themes.ThemeManager.ThemeChangeListener;
  * @see #handleEdit() Xử lý sự kiện nút Sửa
  * @see #handleDelete() Xử lý sự kiện nút Xóa
  * 
- *      Các Override methods tùy chọn
+ * Các Override methods tùy chọn
  * @see #addCustomButtons() Thêm các nút tùy chỉnh vào buttonPanel
  * @see #addCustomFilters() Thêm các filters tùy chỉnh vào filterPanel
  * @see #attachCustomEvents() Gắn sự kiện tùy chỉnh
@@ -320,15 +320,6 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
     // ========================================
 
     /**
-     * Kiểm tra xem có dòng nào được chọn không
-     * 
-     * @return true nếu có dòng được chọn
-     */
-    protected boolean hasSelectedRow() {
-        return table.getSelectedRow() != -1;
-    }
-
-    /**
      * Lấy index của dòng được chọn
      * 
      * @return index hoặc -1 nếu không có dòng nào được chọn
@@ -355,47 +346,12 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
     }
 
     /**
-     * Lấy giá trị tại cột chỉ định của dòng được chọn
-     * 
-     * @param column index của cột
-     * @return giá trị hoặc null nếu không có dòng nào được chọn
-     */
-    protected Object getSelectedValue(int column) {
-        int selectedRow = getSelectedRow();
-        if (selectedRow == -1) {
-            return null;
-        }
-        return tableModel.getValueAt(selectedRow, column);
-    }
-
-    /**
      * Thêm một dòng vào bảng
      * 
      * @param rowData dữ liệu dòng
      */
     protected void addRow(Object[] rowData) {
         tableModel.addRow(rowData);
-    }
-
-    /**
-     * Cập nhật dòng tại vị trí chỉ định
-     * 
-     * @param row     index của dòng
-     * @param rowData dữ liệu mới
-     */
-    protected void updateRow(int row, Object[] rowData) {
-        for (int i = 0; i < rowData.length && i < tableModel.getColumnCount(); i++) {
-            tableModel.setValueAt(rowData[i], row, i);
-        }
-    }
-
-    /**
-     * Xóa dòng tại vị trí chỉ định
-     * 
-     * @param row index của dòng
-     */
-    protected void removeRow(int row) {
-        tableModel.removeRow(row);
     }
 
     // ========================================
