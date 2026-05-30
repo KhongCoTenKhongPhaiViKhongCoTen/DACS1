@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.swing.*;
-import javax.swing.SwingUtilities;
 
 import com.shopapp.entity.Vaitro;
 import com.shopapp.repository.impl.VaitroRepositoryImpl;
@@ -16,6 +15,7 @@ import com.shopapp.ui.frame.panels.Dialog.VaiTroDialog;
 public class VaiTroPage extends BasePage {
 
     private VaitroService roleService;
+    private JButton changeRole; // khởi tạo trong addCustomButtons()
 
     public VaiTroPage() {
         super(new String[] {
@@ -25,6 +25,8 @@ public class VaiTroPage extends BasePage {
         });
     }
 
+    // ── Lazy init service ─────────────────────────────────────────────────────
+
     private VaitroService getRoleService() {
         if (roleService == null) {
             roleService = new VaitroServiceImpl(new VaitroRepositoryImpl());
@@ -32,9 +34,17 @@ public class VaiTroPage extends BasePage {
         return roleService;
     }
 
+    // ── Lấy Frame cha ─────────────────────────────────────────────────────────
+
+    private JFrame getParentFrame() {
+        return (JFrame) SwingUtilities.getWindowAncestor(this);
+    }
+
+    // ── Filter & Table ────────────────────────────────────────────────────────
+
     @Override
     protected void addCustomFilters() {
-        // showTableData(false);
+        // Không có filter tùy chỉnh
     }
 
     @Override
@@ -62,8 +72,9 @@ public class VaiTroPage extends BasePage {
             }
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu vai trò: " + e.getMessage(), "Lỗi",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi tải dữ liệu vai trò: " + e.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
@@ -73,9 +84,11 @@ public class VaiTroPage extends BasePage {
         showTableData(true);
     }
 
+    // ── CRUD handlers ─────────────────────────────────────────────────────────
+
     @Override
     protected void handleAdd() {
-        VaiTroDialog dialog = new VaiTroDialog(null, null, getRoleService());
+        VaiTroDialog dialog = new VaiTroDialog(getParentFrame(), null, getRoleService());
         dialog.setVisible(true);
         if (dialog.isSucceeded()) {
             showTableData(true);
@@ -86,30 +99,31 @@ public class VaiTroPage extends BasePage {
     protected void handleEdit() {
         int selectedId = getSelectedId();
         if (selectedId == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một vai trò từ bảng để chỉnh sửa.", "Thông báo",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một vai trò từ bảng để chỉnh sửa.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
-            Optional<Vaitro> role = roleService.findById(selectedId);
+            // Dùng getRoleService() thay vì roleService trực tiếp để tránh NPE
+            Optional<Vaitro> role = getRoleService().findById(selectedId);
             if (role.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin vai trò được chọn.", "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Không tìm thấy thông tin vai trò được chọn.",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            VaiTroDialog dialog = new VaiTroDialog(
-                    (JFrame) SwingUtilities.getWindowAncestor(this),
-                    role.get(),
-                    roleService);
+            VaiTroDialog dialog = new VaiTroDialog(getParentFrame(), role.get(), getRoleService());
             dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(true);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi lấy thông tin vai trò: " + ex.getMessage(), "Lỗi hệ thống",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi lấy thông tin vai trò: " + ex.getMessage(),
+                    "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
     }
@@ -118,8 +132,9 @@ public class VaiTroPage extends BasePage {
     protected void handleDelete() {
         int selectedId = getSelectedId();
         if (selectedId == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một vai trò từ bảng để xóa", "Thông báo",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một vai trò từ bảng để xóa.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -134,16 +149,44 @@ public class VaiTroPage extends BasePage {
                 getRoleService().deleteById(selectedId);
                 showTableData(false);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi xóa vai trò: " + e.getMessage(), "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Lỗi khi xóa vai trò: " + e.getMessage(),
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
         }
     }
 
+    // ── Custom buttons & events ───────────────────────────────────────────────
+
+    @Override
+    protected void addCustomButtons() {
+        changeRole = new JButton("Thay đổi quyền"); // tạo tại đây, tránh double-add
+        buttonPanel.add(changeRole);
+    }
+
     @Override
     protected void attachCustomEvents() {
-        // Load initial data
+        changeRole.addActionListener(e -> handleChangeRole());
+
+        // Load dữ liệu ban đầu
         showTableData(false);
+    }
+
+    // ── Xử lý thay đổi quyền ─────────────────────────────────────────────────
+
+    private void handleChangeRole() {
+        int selectedId = getSelectedId();
+        if (selectedId == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một vai trò từ bảng để thay đổi quyền.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // TODO: mở dialog phân quyền cho vai trò selectedId
+        JOptionPane.showMessageDialog(this,
+                "Chức năng phân quyền đang được phát triển.",
+                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
     }
 }

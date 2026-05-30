@@ -19,26 +19,24 @@ import com.shopapp.ui.themes.ThemeManager.ThemeChangeListener;
 /**
  * Abstract class chung cho các trang trong giao diện người dùng.
  * Các class con chỉ cần implement các phương thức abstract và override
- * 
+ *
  * Các chức năng mặc định:
  * - Hiển thị bảng với dữ liệu
  * - Nút Thêm, Sửa, Xóa
  * - Bộ lọc tìm kiếm theo ID
- * 
+ *
  * Các Override methods bắt buộc
  * 
  * @see #showTableData(boolean) Hiển thị dữ liệu bảng với/không áp dụng bộ lọc
  * @see #handleAdd() Xử lý sự kiện nút Thêm
  * @see #handleEdit() Xử lý sự kiện nút Sửa
  * @see #handleDelete() Xử lý sự kiện nút Xóa
- * 
- * Các Override methods tùy chọn
+ *
+ *      Các Override methods tùy chọn
  * @see #addCustomButtons() Thêm các nút tùy chỉnh vào buttonPanel
  * @see #addCustomFilters() Thêm các filters tùy chỉnh vào filterPanel
  * @see #attachCustomEvents() Gắn sự kiện tùy chỉnh
- * 
  */
-
 public abstract class BasePage extends JPanel implements ThemeChangeListener {
 
     // ===== TABLE =====
@@ -68,15 +66,12 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
      * Constructor - Khởi tạo giao diện
      *
      * @param columnTableNames Tên các cột của bảng
-     * @since 1.0
      */
     public BasePage(String[] columnTableNames) {
         initBase();
         initUI(columnTableNames);
         initEvents();
-        // Apply initial theme
         applyTheme();
-        // Register as theme change listener to automatically update theme
         ThemeManager.addThemeChangeListener(this);
     }
 
@@ -88,7 +83,6 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         initButtons();
         initTopPanel();
         initTable(columnTableNames);
-
         table.setRowHeight(rowHeightTable);
     }
 
@@ -97,9 +91,8 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         attachCustomEvents();
     }
 
-    /**
-     * Khởi tạo các buttons
-     */
+    // ── Khởi tạo buttons ──────────────────────────────────────────────────────
+
     private void initButtons() {
         btnRefresh = new JButton("Làm mới");
         btnAdd = new JButton("Thêm");
@@ -108,16 +101,13 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         btnFilter = new JButton("Lọc");
     }
 
-    /**
-     * Khởi tạo panel chứa buttons và filters
-     */
-    private void initTopPanel() {
-        topPanel = new JPanel();
-        topPanel.setLayout(new BorderLayout(5, 5));
+    // ── Khởi tạo top panel ────────────────────────────────────────────────────
 
-        // ===== HÀNG 1: Panel chứa các nút thao tác =====
-        buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+    private void initTopPanel() {
+        topPanel = new JPanel(new BorderLayout(5, 5));
+
+        // HÀNG 1: Panel chứa các nút thao tác
+        buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         buttonPanel.add(btnRefresh);
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnEdit);
@@ -126,22 +116,18 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         // Cho phép class con thêm nút tùy chỉnh vào buttonPanel
         addCustomButtons();
 
-        // ===== HÀNG 2: Panel chứa bộ lọc =====
+        // HÀNG 2: Panel chứa bộ lọc
         filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-
-        // Khởi tạo components của filter
         tfSearch = new JTextField(15);
         tfSearchLabel = new JLabel("Tìm kiếm");
-
         filterPanel.add(btnFilter);
         filterPanel.add(tfSearchLabel);
         filterPanel.add(tfSearch);
+
         // Cho phép class con thêm filters tùy chỉnh
         addCustomFilters();
 
-        // Thêm cả 2 panel vào topPanel
-        JPanel containerPanel = new JPanel();
-        containerPanel.setLayout(new BorderLayout());
+        JPanel containerPanel = new JPanel(new BorderLayout());
         containerPanel.add(buttonPanel, BorderLayout.NORTH);
         containerPanel.add(filterPanel, BorderLayout.CENTER);
 
@@ -149,9 +135,8 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         add(topPanel, BorderLayout.NORTH);
     }
 
-    /**
-     * Khởi tạo bảng
-     */
+    // ── Khởi tạo bảng ────────────────────────────────────────────────────────
+
     private void initTable(String[] columnNames) {
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -168,33 +153,9 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    /**
-     * Hiển thị danh sách Table với các bộ lọc tùy chọn.
-     * 
-     * @param applyFilter true = áp dụng bộ lọc, false = hiển thị tất cả
-     */
+    // ── Abstract methods ──────────────────────────────────────────────────────
+
     public abstract void showTableData(boolean applyFilter);
-
-    /**
-     * Gắn sự kiện cho các nút mặc định
-     */
-    private void attachDefaultEvents() {
-        btnRefresh.addActionListener(e -> showTableData(false));
-        btnFilter.addActionListener(e -> handleFilter());
-        btnAdd.addActionListener(e -> handleAdd());
-        btnEdit.addActionListener(e -> {
-            handleEdit();
-        });
-        btnDelete.addActionListener(e -> {
-            handleDelete();
-        });
-        tfSearch.addActionListener(e -> showTableData(true));
-
-    }
-
-    /***********************************************
-     * ABSTRACT METHODS - Class con phải implement *
-     ***********************************************/
 
     protected abstract void handleAdd();
 
@@ -202,64 +163,57 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
 
     protected abstract void handleDelete();
 
-    /**
-     * Xử lý sự kiện nút Lọc
-     */
     protected abstract void handleFilter();
 
-    // ========================================
-    // OPTIONAL METHODS - Class con có thể override
-    // ========================================
+    // ── Default events ────────────────────────────────────────────────────────
 
-    /**
-     * Thêm các nút tùy chỉnh vào buttonPanel.
-     * Override phương thức này để thêm nút của riêng bạn.
-     */
+    private void attachDefaultEvents() {
+        btnRefresh.addActionListener(e -> showTableData(false));
+        btnFilter.addActionListener(e -> handleFilter());
+        btnAdd.addActionListener(e -> handleAdd());
+        btnEdit.addActionListener(e -> handleEdit());
+        btnDelete.addActionListener(e -> handleDelete());
+        tfSearch.addActionListener(e -> showTableData(true));
+    }
+
+    // ── Optional override methods ─────────────────────────────────────────────
+
+    /** Thêm nút tùy chỉnh vào buttonPanel. Dùng buttonPanel.add(...) */
     protected void addCustomButtons() {
-        // Mặc định không làm gì
-        // Class con override để thêm nút
-        // dùng buttonPanel.add(...) để thêm nút
     }
 
-    /**
-     * Thêm các filters tùy chỉnh vào filterPanel.
-     * Override phương thức này để thêm filter của riêng bạn.
-     */
+    /** Thêm filter tùy chỉnh vào filterPanel. Dùng filterPanel.add(...) */
     protected void addCustomFilters() {
-        // Mặc định không làm gì
-        // Class con override để thêm filter
-        // dùng filterPanel.add(...) để thêm filter
     }
 
-    /**
-     * Gắn sự kiện tùy chỉnh.
-     * Override phương thức này để thêm sự kiện của riêng bạn.
-     */
+    /** Gắn sự kiện tùy chỉnh */
     protected void attachCustomEvents() {
-        // Mặc định không làm gì
-        // Class con override để thêm sự kiện
     }
 
-    // ========================================
-    // THEME METHODS
-    // ========================================
+    // ── Theme ─────────────────────────────────────────────────────────────────
 
-    /**
-     * Áp dụng theme hiện tại cho các component.
-     */
     protected void applyTheme() {
         Theme theme = ThemeManager.getCurrentTheme();
 
-        // Áp dụng theme cho các panel
-        if (topPanel != null) {
+        if (topPanel != null)
             topPanel.setBackground(theme.background);
-        }
+        if (filterPanel != null)
+            filterPanel.setBackground(theme.background);
+
         if (buttonPanel != null) {
             buttonPanel.setBackground(theme.background);
+            // Loop tất cả buttons trong buttonPanel — bao gồm cả custom buttons
+            for (java.awt.Component comp : buttonPanel.getComponents()) {
+                if (comp instanceof JButton btn) {
+                    applyButtonTheme(btn, theme);
+                }
+            }
         }
-        if (filterPanel != null) {
-            filterPanel.setBackground(theme.background);
-        }
+
+        // btnFilter nằm trong filterPanel, xử lý riêng
+        if (btnFilter != null)
+            applyButtonTheme(btnFilter, theme);
+
         if (table != null) {
             table.setBackground(theme.background);
             table.setForeground(theme.foreground);
@@ -271,25 +225,6 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         if (scrollPane != null) {
             scrollPane.getViewport().setBackground(theme.background);
         }
-
-        // Áp dụng theme cho buttons
-        if (btnRefresh != null) {
-            applyButtonTheme(btnRefresh, theme);
-        }
-        if (btnAdd != null) {
-            applyButtonTheme(btnAdd, theme);
-        }
-        if (btnEdit != null) {
-            applyButtonTheme(btnEdit, theme);
-        }
-        if (btnDelete != null) {
-            applyButtonTheme(btnDelete, theme);
-        }
-        if (btnFilter != null) {
-            applyButtonTheme(btnFilter, theme);
-        }
-
-        // Áp dụng theme cho text field và label
         if (tfSearch != null) {
             tfSearch.setBackground(theme.buttonBackground);
             tfSearch.setForeground(theme.textPrimary);
@@ -301,13 +236,7 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         }
     }
 
-    /**
-     * Áp dụng theme cho một button.
-     *
-     * @param button Button cần áp dụng theme
-     * @param theme  Theme hiện tại
-     */
-    private void applyButtonTheme(javax.swing.JButton button, Theme theme) {
+    private void applyButtonTheme(JButton button, Theme theme) {
         button.setBackground(theme.buttonBackground);
         button.setForeground(theme.buttonForeground);
         button.setFont(theme.getFont(12));
@@ -315,64 +244,36 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         button.setBorderPainted(true);
     }
 
-    // ========================================
-    // UTILITY METHODS
-    // ========================================
+    // ── Utility ───────────────────────────────────────────────────────────────
 
-    /**
-     * Lấy index của dòng được chọn
-     * 
-     * @return index hoặc -1 nếu không có dòng nào được chọn
-     */
     protected int getSelectedRow() {
         return table.getSelectedRow();
     }
 
-    /**
-     * Lấy ID từ dòng được chọn (giả sử cột 0 là ID)
-     * 
-     * @return ID hoặc -1 nếu không có dòng nào được chọn
-     */
     protected int getSelectedId() {
         int selectedRow = getSelectedRow();
-        if (selectedRow == -1) {
+        if (selectedRow == -1)
             return -1;
-        }
         Object value = tableModel.getValueAt(selectedRow, 0);
-        if (value instanceof Number) {
+        if (value instanceof Number)
             return ((Number) value).intValue();
-        }
         return -1;
     }
 
-    /**
-     * Thêm một dòng vào bảng
-     * 
-     * @param rowData dữ liệu dòng
-     */
     protected void addRow(Object[] rowData) {
         tableModel.addRow(rowData);
     }
 
-    // ========================================
-    // GETTERS & SETTERS
-    // ========================================
+    // ── Getters & Setters ─────────────────────────────────────────────────────
 
     public void setRowHeightTable(int rowHeightTable) {
         this.rowHeightTable = rowHeightTable;
-        if (table != null) {
+        if (table != null)
             table.setRowHeight(rowHeightTable);
-        }
     }
 
-    /**
-     * Called when the theme changes.
-     * Override this method in subclasses to handle theme changes.
-     *
-     * @param theme The new theme
-     */
     @Override
     public void onThemeChanged(Theme theme) {
-        applyTheme(); // Fixed: This line was being interpreted as a duplicate method declaration.
+        applyTheme();
     }
 }
