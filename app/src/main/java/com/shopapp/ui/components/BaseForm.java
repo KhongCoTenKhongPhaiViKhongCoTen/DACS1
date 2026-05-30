@@ -9,16 +9,17 @@ import com.shopapp.ui.themes.Theme;
 import com.shopapp.ui.themes.ThemeManager;
 
 /**
- * A flexible form panel that uses GridBagLayout for organized component arrangement.
+ * A flexible form panel that uses GridBagLayout for organized component
+ * arrangement.
  * Supports theming and provides clean spacing for form elements.
  */
-public class Form extends javax.swing.JPanel implements ThemeManager.ThemeChangeListener {
+public class BaseForm extends javax.swing.JPanel implements ThemeManager.ThemeChangeListener {
 
     private final GridBagConstraints gbc = new GridBagConstraints();
     private int row = 0;
     private static final Insets DEFAULT_INSETS = new Insets(8, 8, 8, 8);
 
-    public Form() {
+    public BaseForm() {
         initializeForm();
     }
 
@@ -29,9 +30,9 @@ public class Form extends javax.swing.JPanel implements ThemeManager.ThemeChange
     }
 
     /**
-     * Adds a component centered across both columns of the form.
+     * Thêm một thành phần được căn giữa trên cả hai cột của biểu mẫu.
      *
-     * @param component The component to add (typically a button)
+     * @param component Thành phần cần thêm
      */
     public void addRowCenter(JComponent component) {
         gbc.gridx = 0;
@@ -49,8 +50,8 @@ public class Form extends javax.swing.JPanel implements ThemeManager.ThemeChange
     /**
      * Adds a label-field pair to the form in a standard two-column layout.
      *
-     * @param label  The label component
-     * @param field  The field component (text field, combo box, etc.)
+     * @param label The label component
+     * @param field The field component (text field, combo box, etc.)
      */
     public void addRow(JComponent label, JComponent field) {
         // Add label
@@ -93,7 +94,7 @@ public class Form extends javax.swing.JPanel implements ThemeManager.ThemeChange
 
     private Insets getDefaultInsets() {
         return new Insets(DEFAULT_INSETS.top, DEFAULT_INSETS.left,
-                         DEFAULT_INSETS.bottom, DEFAULT_INSETS.right);
+                DEFAULT_INSETS.bottom, DEFAULT_INSETS.right);
     }
 
     private void resetGridConstraints() {
