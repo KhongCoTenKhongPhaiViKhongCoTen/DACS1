@@ -35,23 +35,23 @@ public class NavbarMainFrame {
         navBar.addNavButton("🏠", "Trang chủ", PageKey.HOME);
 
         // Quản lý tài khoản section - requires user permissions
-        if (AppSys.hasAnyPermissionByCode("USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE")) {
+        if (AppSys.quyen().hasAnyCode("USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE")) {
             navBar.addNavExpandableSection("👥", "Quản lý tài khoản",
                     PageKey.AccountManagement.getItemName(),
                     PageKey.AccountManagement.getListkey());
         }
 
-        if (AppSys.hasAnyPermissionByCode("INVENTORY_READ", "INVENTORY_UPDATE")) {
+        if (AppSys.quyen().hasAnyCode("INVENTORY_READ", "INVENTORY_UPDATE")) {
             navBar.addNavExpandableSection("📦", "Kho hàng",
                     PageKey.KhoHang.getItemName(),
                     PageKey.KhoHang.getListkey());
         }
 
-        if (AppSys.hasAnyPermissionByCode("ORDER_READ", "ORDER_CREATE", "ORDER_UPDATE", "ORDER_DELETE")) {
+        if (AppSys.quyen().hasAnyCode("ORDER_READ", "ORDER_CREATE", "ORDER_UPDATE", "ORDER_DELETE")) {
             navBar.addNavButton("🧾", "Đơn Hàng", PageKey.DON_HANG);
         }
 
-        if (AppSys.hasAnyPermissionByCode("CUSTOMER_READ", "CUSTOMER_CREATE", "CUSTOMER_UPDATE", "CUSTOMER_DELETE")) {
+        if (AppSys.quyen().hasAnyCode("CUSTOMER_READ", "CUSTOMER_CREATE", "CUSTOMER_UPDATE", "CUSTOMER_DELETE")) {
             navBar.addNavButton("🧑‍🤝‍🧑", "Khách Hàng", PageKey.KHACH_HANG);
         }
 

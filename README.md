@@ -13,7 +13,7 @@
 
 ## Cấu trúc dự án
 
-```
+```folder
 app/
 ├── src/
 │   ├── main/
@@ -45,7 +45,6 @@ app/
 - Xử lý và theo dõi đơn hàng
 - Kiểm soát truy cập dựa trên vai trò
 - Bảo mật mật khẩu bằng cách băm bcrypt
-- Lớp持久性 dựa trên Hibernate
 - Giao diện người dùng desktop dựa trên Swing
 
 ## Hướng dẫn cài đặt
@@ -58,6 +57,7 @@ app/
 2. **Cấu hình cơ sở dữ liệu**
    - Tạo cơ sở dữ liệu MySQL cho ứng dụng
    - Cập nhật chi tiết kết nối cơ sở dữ liệu trong `hibernate.cfg.xml`:
+
      ```xml
      <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/your_database</property>
      <property name="hibernate.connection.username">your_username</property>
@@ -88,13 +88,13 @@ app/
 
 ## Giấy phép
 
-Dự án này được phát triển như là một phần của bài tập môn học hoặc dự án nội bộ. Vui lòng tham khảo tập tin LICENSE để biết các quyền利用 cụ thể.
+Dự án này được phát triển như là một phần của bài tập môn học hoặc dự án nội bộ. Vui lòng tham khảo tập tin LICENSE để biết các quyền cụ thể.
 
 ## Đóng góp
 
 1. Fork kho lưu trữ
 2. Tạo nhánh tính năng (`git checkout -b feature/amazing-feature`)
-3. Cam kết các thay đổi của bạn (`git commit -m 'Thêm tính năng惊人'`)
+3. Cam kết các thay đổi của bạn (`git commit -m 'Thêm tính năng'`)
 4. Đẩy lên nhánh (`git push origin feature/amazing-feature`)
 5. Mở một Pull Request
 
