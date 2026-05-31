@@ -5,10 +5,16 @@ import java.awt.*;
 
 import com.shopapp.AppSys;
 import com.shopapp.ui.components.NavBar;
+import com.shopapp.ui.frame.panels.DanhMucPage;
+import com.shopapp.ui.frame.panels.DonHangPage;
 import com.shopapp.ui.frame.panels.HomePage;
+import com.shopapp.ui.frame.panels.KhachHangPage;
 import com.shopapp.ui.frame.panels.NguoiDungPage;
+import com.shopapp.ui.frame.panels.NhaCungCapPage;
 import com.shopapp.ui.frame.panels.QuyenPage;
 import com.shopapp.ui.frame.panels.SettingsPage;
+import com.shopapp.ui.frame.panels.SanPhamPage;
+import com.shopapp.ui.frame.panels.TonKhoPage;
 import com.shopapp.ui.frame.panels.VaiTroPage;
 import com.shopapp.ui.themes.*;
 import com.shopapp.ui.listeners.PageChangeListener;
@@ -26,6 +32,16 @@ public class MainFrame extends JFrame
     private NguoiDungPage nguoiDungPage;
     private VaiTroPage vaiTroPage;
     private QuyenPage quyenPage;
+
+    // Kho Hang pages
+    private DanhMucPage danhMucPage;
+    private NhaCungCapPage nhaCungCapPage;
+    private SanPhamPage sanPhamPage;
+    private TonKhoPage tonKhoPage;
+    private DonHangPage donHangPage;
+
+    // Khach Hang page
+    private KhachHangPage khachHangPage;
 
     public MainFrame() {
         initFrame();
@@ -62,6 +78,30 @@ public class MainFrame extends JFrame
 
             quyenPage = new QuyenPage();
             contentPanel.add(quyenPage, PageKey.AccountManagement.QUYEN);
+        }
+
+        // Kho Hang pages
+        if (AppSys.quyen().hasAnyCode("USER_READ")) {
+            danhMucPage = new DanhMucPage();
+            contentPanel.add(danhMucPage, PageKey.KhoHang.DANH_MUC);
+
+            nhaCungCapPage = new NhaCungCapPage();
+            contentPanel.add(nhaCungCapPage, PageKey.KhoHang.NHA_CUNG_CAP);
+
+            sanPhamPage = new SanPhamPage();
+            contentPanel.add(sanPhamPage, PageKey.KhoHang.SAN_PHAM);
+
+            tonKhoPage = new TonKhoPage();
+            contentPanel.add(tonKhoPage, PageKey.KhoHang.TON_KHO);
+
+            donHangPage = new DonHangPage();
+            contentPanel.add(donHangPage, PageKey.DON_HANG);
+        }
+
+        // Khach Hang page
+        if (AppSys.quyen().hasAnyCode("USER_READ")) {
+            khachHangPage = new KhachHangPage();
+            contentPanel.add(khachHangPage, PageKey.KHACH_HANG);
         }
 
         add(contentPanel, BorderLayout.CENTER);
