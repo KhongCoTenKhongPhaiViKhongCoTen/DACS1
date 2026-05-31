@@ -202,11 +202,4 @@ public class Login extends JFrame {
         passField.setText("");
     }
 
-    // ==================== MAIN ====================
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new Login();
-        });
-    }
 }

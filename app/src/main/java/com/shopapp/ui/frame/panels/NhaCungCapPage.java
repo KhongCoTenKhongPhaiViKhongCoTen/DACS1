@@ -1,49 +1,87 @@
 package com.shopapp.ui.frame.panels;
 
-import com.shopapp.ui.components.BasePage;
+import java.util.List;
+import java.util.Optional;
 
-/**
- * Panel for managing Nha Cung Cap (Suppliers)
- */
+import javax.swing.*;
+import com.shopapp.entity.NhaCungCap;
+import com.shopapp.repository.impl.NhaCungCapRepositoryImpl;
+import com.shopapp.service.NhaCungCapService;
+import com.shopapp.service.impl.NhaCungCapServiceImpl;
+import com.shopapp.ui.components.BasePage;
+import com.shopapp.ui.frame.panels.Dialog.NhaCungCapDialog;
+
 public class NhaCungCapPage extends BasePage {
+
+    private NhaCungCapService nhaCungCapService;
 
     public NhaCungCapPage() {
         super(new String[] {
                 "ID",
                 "Tên nhà cung cấp",
+                "Người liên hệ",
                 "Điện thoại",
                 "Email",
                 "Địa chỉ"
         });
     }
 
+    // ── Lazy init service ─────────────────────────────────────────────────────
+
+    private NhaCungCapService getNhaCungCapService() {
+        if (nhaCungCapService == null) {
+            nhaCungCapService = new NhaCungCapServiceImpl(new NhaCungCapRepositoryImpl());
+        }
+        return nhaCungCapService;
+    }
+
+    // ── Lấy Frame cha ─────────────────────────────────────────────────────────
+
+    private JFrame getParentFrame() {
+        return (JFrame) SwingUtilities.getWindowAncestor(this);
+    }
+
+    // ── Filter & Table ────────────────────────────────────────────────────────
+
     @Override
-    public void showTableData(boolean applyFilter) {
+    protected void addCustomFilters() {
+        // Không có filter tùy chỉnh
+    }
+
+    @Override
+    public void showTableData(boolean applyFilters) {
         tableModel.setRowCount(0);
-    }
+        try {
+            List<NhaCungCap> nhaCungCapList = getNhaCungCapService().findAll();
+            String searchQuery = tfSearch.getText().trim().toLowerCase();
 
-    @Override
-    protected void handleAdd() {
-        javax.swing.JOptionPane.showMessageDialog(this,
-                "Chức năng thêm sẽ được triển khai sau",
-                "Thông báo",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE);
-    }
+            for (NhaCungCap nhaCungCap : nhaCungCapList) {
+                if (applyFilters && !searchQuery.isEmpty()) {
+                    String idStr = String.valueOf(nhaCungCap.getSupplierId());
+                    String nameStr = nhaCungCap.getCompanyName() != null ? nhaCungCap.getCompanyName().toLowerCase() : "";
+                    String contactStr = nhaCungCap.getContactName() != null ? nhaCungCap.getContactName().toLowerCase() : "";
 
-    @Override
-    protected void handleEdit() {
-        javax.swing.JOptionPane.showMessageDialog(this,
-                "Chức năng sửa sẽ được triển khai sau",
-                "Thông báo",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE);
-    }
+                    if (!idStr.contains(searchQuery) && !nameStr.contains(searchQuery) && !contactStr.contains(searchQuery)) {
+                        continue;
+                    }
+                }
 
-    @Override
-    protected void handleDelete() {
-        javax.swing.JOptionPane.showMessageDialog(this,
-                "Chức năng xóa sẽ được triển khai sau",
-                "Thông báo",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                tableModel.addRow(new Object[] {
+                        nhaCungCap.getSupplierId(),
+                        nhaCungCap.getCompanyName(),
+                        nhaCungCap.getContactName(),
+                        nhaCungCap.getPhone(),
+                        nhaCungCap.getEmail(),
+                        nhaCungCap.getAddress()
+                });
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi tải dữ liệu nhà cung cấp: " + e.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -51,11 +89,79 @@ public class NhaCungCapPage extends BasePage {
         showTableData(true);
     }
 
+    // ── CRUD handlers ─────────────────────────────────────────────────────────
+
     @Override
-    protected void attachCustomEvents() {
-        // Load initial data
-        showTableData(false);
+    protected void handleAdd() {
+        NhaCungCapDialog dialog = new NhaCungCapDialog(getParentFrame(), null, getNhaCungCapService());
+        dialog.setVisible(true);
+        if (dialog.isSucceeded()) {
+            showTableData(true);
+        }
     }
+
+    @Override
+    protected void handleEdit() {
+        int selectedId = getSelectedId();
+        if (selectedId == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một nhà cung cấp từ bảng để chỉnh sửa.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            Optional<NhaCungCap> nhaCungCap = getNhaCungCapService().findById(selectedId);
+            if (nhaCungCap.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Không tìm thấy thông tin nhà cung cấp được chọn.",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            NhaCungCapDialog dialog = new NhaCungCapDialog(getParentFrame(), nhaCungCap.get(), getNhaCungCapService());
+            dialog.setVisible(true);
+            if (dialog.isSucceeded()) {
+                showTableData(true);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi lấy thông tin nhà cung cấp: " + ex.getMessage(),
+                    "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void handleDelete() {
+        int selectedId = getSelectedId();
+        if (selectedId == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một nhà cung cấp từ bảng để xóa.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc chắn muốn xóa nhà cung cấp này?",
+                "Xác nhận xóa",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                getNhaCungCapService().deleteById(selectedId);
+                showTableData(false);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                        "Lỗi khi xóa nhà cung cấp: " + e.getMessage(),
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // ── Custom buttons & events ───────────────────────────────────────────────
 
     @Override
     protected void addCustomButtons() {
@@ -63,7 +169,8 @@ public class NhaCungCapPage extends BasePage {
     }
 
     @Override
-    protected void addCustomFilters() {
-        // No custom filters for now
+    protected void attachCustomEvents() {
+        // Load dữ liệu ban đầu
+        showTableData(false);
     }
 }

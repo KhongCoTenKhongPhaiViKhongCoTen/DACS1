@@ -8,10 +8,6 @@ import java.util.Optional;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-/**
- * Hibernate implementation of KhachHangRepository.
- * Uses Hibernate for database persistence.
- */
 public class KhachHangRepositoryImpl implements KhachHangRepository {
 
     @Override

@@ -1,11 +1,19 @@
 package com.shopapp.ui.frame.panels;
 
-import com.shopapp.ui.components.BasePage;
+import java.util.List;
+import java.util.Optional;
 
-/**
- * Panel for managing Danh Muc (Categories)
- */
+import javax.swing.*;
+import com.shopapp.entity.DanhMuc;
+import com.shopapp.repository.impl.DanhMucRepositoryImpl;
+import com.shopapp.service.DanhMucService;
+import com.shopapp.service.impl.DanhMucServiceImpl;
+import com.shopapp.ui.components.BasePage;
+import com.shopapp.ui.frame.panels.Dialog.DanhMucDialog;
+
 public class DanhMucPage extends BasePage {
+
+    private DanhMucService danhMucService;
 
     public DanhMucPage() {
         super(new String[] {
@@ -15,33 +23,58 @@ public class DanhMucPage extends BasePage {
         });
     }
 
+    // ── Lazy init service ─────────────────────────────────────────────────────
+
+    private DanhMucService getDanhMucService() {
+        if (danhMucService == null) {
+            danhMucService = new DanhMucServiceImpl(new DanhMucRepositoryImpl());
+        }
+        return danhMucService;
+    }
+
+    // ── Lấy Frame cha ─────────────────────────────────────────────────────────
+
+    private JFrame getParentFrame() {
+        return (JFrame) SwingUtilities.getWindowAncestor(this);
+    }
+
+    // ── Filter & Table ────────────────────────────────────────────────────────
+
     @Override
-    public void showTableData(boolean applyFilter) {
+    protected void addCustomFilters() {
+        // Không có filter tùy chỉnh
+    }
+
+    @Override
+    public void showTableData(boolean applyFilters) {
         tableModel.setRowCount(0);
-    }
+        try {
+            List<DanhMuc> danhMucList = getDanhMucService().findAll();
+            String searchQuery = tfSearch.getText().trim().toLowerCase();
 
-    @Override
-    protected void handleAdd() {
-        javax.swing.JOptionPane.showMessageDialog(this,
-                "Chức năng thêm sẽ được triển khai sau",
-                "Thông báo",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE);
-    }
+            for (DanhMuc danhMuc : danhMucList) {
+                if (applyFilters && !searchQuery.isEmpty()) {
+                    String idStr = String.valueOf(danhMuc.getCategoryId());
+                    String nameStr = danhMuc.getCategoryName() != null ? danhMuc.getCategoryName().toLowerCase() : "";
 
-    @Override
-    protected void handleEdit() {
-        javax.swing.JOptionPane.showMessageDialog(this,
-                "Chức năng sửa sẽ được triển khai sau",
-                "Thông báo",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE);
-    }
+                    if (!idStr.contains(searchQuery) && !nameStr.contains(searchQuery)) {
+                        continue;
+                    }
+                }
 
-    @Override
-    protected void handleDelete() {
-        javax.swing.JOptionPane.showMessageDialog(this,
-                "Chức năng xóa sẽ được triển khai sau",
-                "Thông báo",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                tableModel.addRow(new Object[] {
+                        danhMuc.getCategoryId(),
+                        danhMuc.getCategoryName(),
+                        danhMuc.getDescription()
+                });
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi tải dữ liệu danh mục: " + e.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -49,10 +82,79 @@ public class DanhMucPage extends BasePage {
         showTableData(true);
     }
 
+    // ── CRUD handlers ─────────────────────────────────────────────────────────
+
     @Override
-    protected void attachCustomEvents() {
-        showTableData(false);
+    protected void handleAdd() {
+        DanhMucDialog dialog = new DanhMucDialog(getParentFrame(), null, getDanhMucService());
+        dialog.setVisible(true);
+        if (dialog.isSucceeded()) {
+            showTableData(true);
+        }
     }
+
+    @Override
+    protected void handleEdit() {
+        int selectedId = getSelectedId();
+        if (selectedId == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một danh mục từ bảng để chỉnh sửa.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            Optional<DanhMuc> danhMuc = getDanhMucService().findById(selectedId);
+            if (danhMuc.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Không tìm thấy thông tin danh mục được chọn.",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            DanhMucDialog dialog = new DanhMucDialog(getParentFrame(), danhMuc.get(), getDanhMucService());
+            dialog.setVisible(true);
+            if (dialog.isSucceeded()) {
+                showTableData(true);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi lấy thông tin danh mục: " + ex.getMessage(),
+                    "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void handleDelete() {
+        int selectedId = getSelectedId();
+        if (selectedId == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một danh mục từ bảng để xóa.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc chắn muốn xóa danh mục này?",
+                "Xác nhận xóa",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                getDanhMucService().deleteById(selectedId);
+                showTableData(false);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                        "Lỗi khi xóa danh mục: " + e.getMessage(),
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // ── Custom buttons & events ───────────────────────────────────────────────
 
     @Override
     protected void addCustomButtons() {
@@ -60,7 +162,8 @@ public class DanhMucPage extends BasePage {
     }
 
     @Override
-    protected void addCustomFilters() {
-        // No custom filters for now
+    protected void attachCustomEvents() {
+        // Load dữ liệu ban đầu
+        showTableData(false);
     }
 }

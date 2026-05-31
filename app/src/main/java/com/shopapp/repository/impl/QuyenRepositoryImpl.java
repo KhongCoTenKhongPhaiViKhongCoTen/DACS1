@@ -8,9 +8,7 @@ import java.util.Optional;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-/**
- * Hibernate implementation of QuyenRepository.
- */
+
 public class QuyenRepositoryImpl implements QuyenRepository {
 
     @Override

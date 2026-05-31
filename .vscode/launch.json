@@ -4,7 +4,13 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
+        {
+            "type": "java",
+            "name": "Login",
+            "request": "launch",
+            "mainClass": "com.shopapp.ui.frame.Login",
+            "projectName": "app"
+        },
         {
             "type": "java",
             "name": "Current File",
