@@ -6,8 +6,8 @@ public class AutoLoginManager {
 
     private static final Preferences prefs = Preferences.userNodeForPackage(AutoLoginManager.class);
 
-    // Thời gian token hết hạn: 7 ngày (ms)
-    private static final long TOKEN_EXPIRY_MS = 1L * 24 * 60 * 60 * 1000;
+    // Thời gian token hết hạn
+    private static final long TOKEN_EXPIRY_MS =  8 * 60 * 60 * 1000;
 
     // ==================== SAVE ====================
 

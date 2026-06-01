@@ -64,7 +64,7 @@ public class MainFrame extends JFrame
         add(navbar, BorderLayout.WEST);
 
         // Add pages to content panel
-        contentPanel.add(homePage, PageKey.HOME);
+        // contentPanel.add(homePage, PageKey.HOME);
         contentPanel.add(settingsPage, PageKey.SETTINGS);
 
         if (AppSys.quyen().hasAnyCode("USER_READ")) {
@@ -104,7 +104,7 @@ public class MainFrame extends JFrame
 
         add(contentPanel, BorderLayout.CENTER);
 
-        cardLayout.show(contentPanel, PageKey.HOME);
+        cardLayout.show(contentPanel, PageKey.DON_HANG);
 
         // Register page change listener with NavbarManager
         navbar.addPageChangeListener(this);
