@@ -106,7 +106,6 @@ public class MainFrame extends JFrame
 
         cardLayout.show(contentPanel, PageKey.DON_HANG);
 
-        // Register page change listener with NavbarManager
         navbar.addPageChangeListener(this);
     }
 

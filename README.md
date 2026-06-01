@@ -49,7 +49,7 @@ app/
 - Hệ thống đăng nhập/đăng xuất sécure
 - Mã hóa mật khẩu bằng BCrypt
 - Kiểm soát truy cập dựa trên vai trò (RBAC)
-- Quản lý quyền限 chi tiết cho mỗi tính năng
+- Quản lý quyền chi tiết cho mỗi tính năng
 
 ### 👥 Quản lý người dùng
 - Tạo, đọc, cập nhật, xóa (CRUD) người dùng
