@@ -2,7 +2,7 @@
 
 ## Tổng quan
 
-Tài liệu này mô tả mô hình Quan hệ-Entity (ER) cho hệ thống quản lý doanh số bán hàng chuyên dụng cho cửa hàng bán lẻ quần áo. Hệ thống bao gồm quản lý tài khoản người dùng với quyền限 dựa trên vai trò (phân quyền account) để kiểm soát truy cập vào các chức năng khác nhau.
+Tài liệu này mô tả mô hình Quan hệ-Entity (ER) cho hệ thống quản lý doanh số bán hàng chuyên dụng cho cửa hàng bán lẻ quần áo. Hệ thống bao gồm quản lý tài khoản người dùng với quyền dựa trên vai trò (phân quyền account) để kiểm soát truy cập vào các chức năng khác nhau.
 
 ## Các Thực thể và Thuộc tính
 
