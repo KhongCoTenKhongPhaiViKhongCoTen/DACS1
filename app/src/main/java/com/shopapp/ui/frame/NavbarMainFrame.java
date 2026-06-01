@@ -77,7 +77,7 @@ public class NavbarMainFrame {
     }
 
     private static JButton createLogoutButton() {
-        JButton btn = new IconTextButton("🚪", "Đăng xuất", IconTextButton.Orientation.HORIZONTAL);
+        JButton btn = new IconTextButton("👋", "Đăng xuất", IconTextButton.Orientation.HORIZONTAL);
         btn.setFont(AppFont.getEmojiFont(Font.PLAIN, 14));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
