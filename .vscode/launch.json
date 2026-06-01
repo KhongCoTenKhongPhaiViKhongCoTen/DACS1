@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MainFrame",
+            "request": "launch",
+            "mainClass": "com.shopapp.ui.frame.MainFrame",
+            "projectName": "app"
+        },
+        {
+            "type": "java",
             "name": "Login",
             "request": "launch",
             "mainClass": "com.shopapp.ui.frame.Login",

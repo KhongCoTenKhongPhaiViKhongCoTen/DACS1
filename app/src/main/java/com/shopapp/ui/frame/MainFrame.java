@@ -39,8 +39,6 @@ public class MainFrame extends JFrame
     private SanPhamPage sanPhamPage;
     private TonKhoPage tonKhoPage;
     private DonHangPage donHangPage;
-
-    // Khach Hang page
     private KhachHangPage khachHangPage;
 
     public MainFrame() {
@@ -94,12 +92,12 @@ public class MainFrame extends JFrame
             tonKhoPage = new TonKhoPage();
             contentPanel.add(tonKhoPage, PageKey.KhoHang.TON_KHO);
 
-            donHangPage = new DonHangPage();
-            contentPanel.add(donHangPage, PageKey.DON_HANG);
         }
 
-        // Khach Hang page
         if (AppSys.quyen().hasAnyCode("USER_READ")) {
+            donHangPage = new DonHangPage();
+            contentPanel.add(donHangPage, PageKey.DON_HANG);
+
             khachHangPage = new KhachHangPage();
             contentPanel.add(khachHangPage, PageKey.KHACH_HANG);
         }
