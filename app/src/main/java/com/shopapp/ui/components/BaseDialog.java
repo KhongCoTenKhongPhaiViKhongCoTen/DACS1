@@ -113,6 +113,7 @@ public abstract class BaseDialog extends JDialog {
         fillData();
         pack();
         setLocationRelativeTo(getOwner());
+        setVisible(true);
     }
 
     // ── Xử lý sự kiện nút Lưu ────────────────────────────────────────────────

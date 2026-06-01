@@ -41,4 +41,9 @@ public class DanhMuc {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return categoryName; // Hiển thị tên danh mục trong JComboBox
+    }
 }

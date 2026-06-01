@@ -33,6 +33,8 @@ public class QuyenDialog extends BaseDialog {
         this.quyenService = quyenService;
 
         // Fields will be initialized in createForm()
+        // Gọi SAU CÙNG — lúc này createForm() và fillData() mới được gọi
+        buildAndShow();
     }
 
     // ── Tạo form ─────────────────────────────────────────────────────────────
@@ -79,10 +81,16 @@ public class QuyenDialog extends BaseDialog {
             return false;
         }
 
-        // 2. Kiểm tra độ dài
+        // 2. Kiểm tra độ dài (tối thiểu và tối đa)
         if (permissionCode.length() < 2) {
             JOptionPane.showMessageDialog(this,
                     "Mã quyền phải có ít nhất 2 ký tự",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (permissionCode.length() > 50) {
+            JOptionPane.showMessageDialog(this,
+                    "Mã quyền không được vượt quá 50 ký tự",
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return false;
         }
@@ -93,10 +101,22 @@ public class QuyenDialog extends BaseDialog {
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return false;
         }
+        if (permissionName.length() > 100) {
+            JOptionPane.showMessageDialog(this,
+                    "Tên quyền không được vượt quá 100 ký tự",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
 
         if (module.length() < 2) {
             JOptionPane.showMessageDialog(this,
                     "Module phải có ít nhất 2 ký tự",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (module.length() > 50) {
+            JOptionPane.showMessageDialog(this,
+                    "Module không được vượt quá 50 ký tự",
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return false;
         }
