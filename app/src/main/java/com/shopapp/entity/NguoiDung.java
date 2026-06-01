@@ -156,15 +156,6 @@ public class NguoiDung {
 
     @Override
     public String toString() {
-        return "NguoiDung{" +
-                "userId=" + userId +
-                ", username='" + username + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", createdAt=" + createdAt +
-                ", isActive=" + isActive +
-                ", role=" + (role != null ? role.getRoleName() : "null") +
-                '}';
+        return fullName + " (" + username + ")";
     }
 }

@@ -11,7 +11,7 @@ public class TonKho {
     @Column(name = "inventory_id")
     private Integer inventoryId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private SanPham product;
 

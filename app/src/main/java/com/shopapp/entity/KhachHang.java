@@ -86,4 +86,9 @@ public class KhachHang {
     public void setLoyaltyPoints(Integer loyaltyPoints) {
         this.loyaltyPoints = loyaltyPoints;
     }
+
+    @Override
+    public String toString() {
+        return fullName + " (" + email + ")";
+    }
 }

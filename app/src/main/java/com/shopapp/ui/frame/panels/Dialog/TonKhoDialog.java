@@ -7,7 +7,6 @@ import javax.swing.border.EmptyBorder;
 
 import com.shopapp.entity.SanPham;
 import com.shopapp.entity.TonKho;
-import com.shopapp.repository.SanPhamRepository;
 import com.shopapp.repository.impl.SanPhamRepositoryImpl;
 import com.shopapp.service.SanPhamService;
 import com.shopapp.service.TonKhoService;

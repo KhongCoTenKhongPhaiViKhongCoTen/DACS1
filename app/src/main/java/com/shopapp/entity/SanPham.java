@@ -22,11 +22,11 @@ public class SanPham {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     private DanhMuc category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "supplier_id", nullable = false)
     private NhaCungCap supplier;
 
@@ -154,5 +154,10 @@ public class SanPham {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    @Override
+    public String toString() {
+        return productName; // Hiển thị tên sản phẩm trong JComboBox
     }
 }
