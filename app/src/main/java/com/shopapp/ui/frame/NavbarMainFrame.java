@@ -2,6 +2,7 @@ package com.shopapp.ui.frame;
 
 import com.shopapp.AppSys;
 import com.shopapp.entity.NguoiDung;
+import com.shopapp.ui.components.IconTextButton;
 import com.shopapp.ui.components.NavBar;
 import com.shopapp.ui.themes.Theme;
 import com.shopapp.ui.themes.ThemeManager;
@@ -76,8 +77,8 @@ public class NavbarMainFrame {
     }
 
     private static JButton createLogoutButton() {
-        JButton btn = new JButton("🚪  Đăng xuất");
-        btn.setFont(ThemeManager.getFont(14));
+        JButton btn = new IconTextButton("🚪", "Đăng xuất", IconTextButton.Orientation.HORIZONTAL);
+        btn.setFont(AppFont.getEmojiFont(Font.PLAIN, 14));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setAlignmentX(Component.LEFT_ALIGNMENT);

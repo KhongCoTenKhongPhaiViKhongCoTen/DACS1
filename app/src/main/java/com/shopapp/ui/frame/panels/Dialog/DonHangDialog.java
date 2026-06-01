@@ -159,8 +159,7 @@ public class DonHangDialog extends BaseDialog {
         String taxAmountText = tfTaxAmount.getText().trim();
         String discountAmountText = tfDiscountAmount.getText().trim();
         String totalAmountText = tfTotalAmount.getText().trim();
-        String notes = taNotes.getText().trim();
-
+        
         if (orderNumber.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Vui lòng điền mã đơn hàng (*)",
