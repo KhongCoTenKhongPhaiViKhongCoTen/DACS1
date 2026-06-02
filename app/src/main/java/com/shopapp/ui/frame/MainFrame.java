@@ -94,13 +94,13 @@ public class MainFrame extends JFrame
 
         }
 
-        if (AppSys.quyen().hasAnyCode("USER_READ")) {
+        // if (AppSys.quyen().hasAnyCode("USER_READ")) {
             donHangPage = new DonHangPage();
             contentPanel.add(donHangPage, PageKey.DON_HANG);
 
             khachHangPage = new KhachHangPage();
             contentPanel.add(khachHangPage, PageKey.KHACH_HANG);
-        }
+        // }
 
         add(contentPanel, BorderLayout.CENTER);
 

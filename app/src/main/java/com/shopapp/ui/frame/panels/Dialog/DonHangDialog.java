@@ -11,8 +11,6 @@ import javax.swing.border.EmptyBorder;
 import com.shopapp.entity.DonHang;
 import com.shopapp.entity.KhachHang;
 import com.shopapp.entity.NguoiDung;
-import com.shopapp.repository.KhachHangRepository;
-import com.shopapp.repository.NguoiDungRepository;
 import com.shopapp.repository.impl.KhachHangRepositoryImpl;
 import com.shopapp.repository.impl.NguoiDungRepositoryImpl;
 import com.shopapp.service.DonHangService;
@@ -150,153 +148,31 @@ public class DonHangDialog extends BaseDialog {
     // ── Xác thực tùy chỉnh ────────────────────────────────────────────────
     @Override
     protected boolean applyCustomValidation() {
-        String orderNumber = tfOrderNumber.getText().trim();
-        KhachHang selectedCustomer = (KhachHang) cbCustomer.getSelectedItem();
-        NguoiDung selectedUser = (NguoiDung) cbUser.getSelectedItem();
+        // Check các field bắt buộc trước khi parse
+        if (tfOrderNumber.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng điền mã đơn hàng (*)",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (tfStatus.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng điền trạng thái (*)",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // Chỉ validate format ngày — business logic để Service lo
         String orderDateText = tfOrderDate.getText().trim();
-        String status = tfStatus.getText().trim();
-        String subtotalText = tfSubtotal.getText().trim();
-        String taxAmountText = tfTaxAmount.getText().trim();
-        String discountAmountText = tfDiscountAmount.getText().trim();
-        String totalAmountText = tfTotalAmount.getText().trim();
-        
-        if (orderNumber.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng điền mã đơn hàng (*)",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-
-        // Kiểm tra trùng mã đơn hàng (chỉ khi Thêm mới)
-        if (donHang == null) {
+        if (!orderDateText.isEmpty()) {
             try {
-                // We don't have a direct existsByOrderNumber in DonHangService, but we can check via repository if needed.
-                // For now, we'll skip duplicate check for orderNumber as it's not in the service interface.
-                // If required, we can add a method in DonHangRepository to check by orderNumber.
-                // Since the service doesn't expose it, we'll assume it's unique by user input.
-            } catch (Exception ex) {
-                ex.printStackTrace();
+                LocalDateTime.parse(orderDateText,
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(this,
-                        "Lỗi khi kiểm tra trùng mã đơn hàng: " + ex.getMessage(),
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return false;
-            }
-        }
-
-        if (selectedCustomer == null) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng chọn khách hàng (*)",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-
-        if (selectedUser == null) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng chọn nhân viên (*)",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-
-        if (orderDateText.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng điền ngày đặt (*)",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        // Validate orderDate format (basic)
-        try {
-            LocalDateTime.parse(orderDateText, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Ngày đặt không hợp lệ. Định dạng đúng: yyyy-MM-dd HH:mm:ss",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-
-        if (status.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng điền trạng thái (*)",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-
-        // Validate numeric fields (subtotal, tax, discount, total) - they can be empty? In DB they are not null but default 0.
-        // We'll allow empty and treat as 0, but if not empty must be valid BigDecimal.
-        BigDecimal subtotal = null;
-        if (!subtotalText.isEmpty()) {
-            try {
-                subtotal = new BigDecimal(subtotalText);
-                if (subtotal.compareTo(BigDecimal.ZERO) < 0) {
-                    JOptionPane.showMessageDialog(this,
-                            "Tổng tiền trước thuế phải là số không âm",
-                            "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                    return false;
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Tổng tiền trước thuế phải là số",
+                        "Ngày đặt không hợp lệ. Định dạng đúng: yyyy-MM-dd HH:mm:ss",
                         "Cảnh báo", JOptionPane.WARNING_MESSAGE);
                 return false;
             }
         }
-
-        BigDecimal taxAmount = null;
-        if (!taxAmountText.isEmpty()) {
-            try {
-                taxAmount = new BigDecimal(taxAmountText);
-                if (taxAmount.compareTo(BigDecimal.ZERO) < 0) {
-                    JOptionPane.showMessageDialog(this,
-                            "Số tiền thuế phải là số không âm",
-                            "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                    return false;
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Số tiền thuế phải là số",
-                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-        }
-
-        BigDecimal discountAmount = null;
-        if (!discountAmountText.isEmpty()) {
-            try {
-                discountAmount = new BigDecimal(discountAmountText);
-                if (discountAmount.compareTo(BigDecimal.ZERO) < 0) {
-                    JOptionPane.showMessageDialog(this,
-                            "Số tiền giảm giá phải là số không âm",
-                            "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                    return false;
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Số tiền giảm giá phải là số",
-                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-        }
-
-        BigDecimal totalAmount = null;
-        if (!totalAmountText.isEmpty()) {
-            try {
-                totalAmount = new BigDecimal(totalAmountText);
-                if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
-                    JOptionPane.showMessageDialog(this,
-                            "Tổng tiền phải trả phải là số không âm",
-                            "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                    return false;
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Tổng tiền phải trả phải là số",
-                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-        }
-
-        // Optionally, we could verify that totalAmount equals subtotal + taxAmount - discountAmount (if all provided)
-        // But we'll leave that to business logic if needed.
-
         return true;
     }
 

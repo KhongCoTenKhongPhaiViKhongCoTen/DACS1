@@ -5,8 +5,6 @@ import java.util.Optional;
 
 import javax.swing.*;
 import com.shopapp.entity.DonHang;
-import com.shopapp.entity.KhachHang;
-import com.shopapp.entity.NguoiDung;
 import com.shopapp.repository.impl.DonHangRepositoryImpl;
 import com.shopapp.service.DonHangService;
 import com.shopapp.service.impl.DonHangServiceImpl;
