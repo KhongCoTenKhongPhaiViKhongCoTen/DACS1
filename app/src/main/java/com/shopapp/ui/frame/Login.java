@@ -32,7 +32,7 @@ public class Login extends JFrame {
     private final JTextField userTextField = new JTextField(25);
     private final JPasswordField passField = new JPasswordField(25);
 
-    private JCheckBox rememberMeCheckbox = new JCheckBox("Remember me");
+    private JCheckBox rememberMeCheckbox = new JCheckBox("Nhớ thông tin đăng nhập");
     private JPanel buttonPanel;
     private JButton loginButton = new JButton("Login");
 
