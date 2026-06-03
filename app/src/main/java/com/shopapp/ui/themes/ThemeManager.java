@@ -9,59 +9,58 @@ import java.util.List;
  * Provides font utilities for proper Vietnamese and emoji display.
  */
 public class ThemeManager {
-    private static Theme currentTheme = Theme.DARK;
-    private static final List<ThemeChangeListener> listeners = new ArrayList<>();
 
-    public static Theme getCurrentTheme() {
+    // Singleton Instance
+    private static final ThemeManager instance = new ThemeManager();
+
+    private Theme currentTheme = Theme.DARK;
+    private final List<ThemeChangeListener> listeners = new ArrayList<>();
+
+    private ThemeManager() {
+    } // Chặn khởi tạo ngoài
+
+    public static ThemeManager getInstance() {
+        return instance;
+    }
+
+    public Theme getCurrent() {
         return currentTheme;
     }
 
-    public static void setTheme(Theme theme) {
+    public void set(Theme theme) {
         if (currentTheme != theme) {
             currentTheme = theme;
             notifyListeners();
         }
     }
 
-    public static void addThemeChangeListener(ThemeChangeListener listener) {
+    public void addListener(ThemeChangeListener listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
 
-    public static void removeThemeChangeListener(ThemeChangeListener listener) {
+    public void removeListener(ThemeChangeListener listener) {
         listeners.remove(listener);
     }
 
-    private static void notifyListeners() {
+    private void notifyListeners() {
         listeners.forEach(l -> l.onThemeChanged(currentTheme));
     }
 
-    /**
-     * Gets the default UI font for the current theme.
-     * @param size Font size in points
-     * @return Font suitable for UI elements
-     */
-    public static Font getFont(float size) {
-        return currentTheme.getFont(size);
+    // =========================================================================
+    // SỬA LỖI TẠI ĐÂY: Gọi thông qua Singleton AppFont thay vì qua enum Theme cũ
+    // =========================================================================
+    public Font getFont(float size) {
+        return AppFont.getInstance().getUIFont(Font.PLAIN, (int) size);
     }
 
-    /**
-     * Gets the bold UI font for the current theme.
-     * @param size Font size in points
-     * @return Bold font suitable for UI elements
-     */
-    public static Font getBoldFont(float size) {
-        return currentTheme.getBoldFont(size);
+    public Font getBoldFont(float size) {
+        return AppFont.getInstance().getUIFont(Font.BOLD, (int) size);
     }
 
-    /**
-     * Gets the italic UI font for the current theme.
-     * @param size Font size in points
-     * @return Italic font suitable for UI elements
-     */
-    public static Font getItalicFont(float size) {
-        return currentTheme.getItalicFont(size);
+    public Font getItalicFont(float size) {
+        return AppFont.getInstance().getUIFont(Font.ITALIC, (int) size);
     }
 
     public interface ThemeChangeListener {

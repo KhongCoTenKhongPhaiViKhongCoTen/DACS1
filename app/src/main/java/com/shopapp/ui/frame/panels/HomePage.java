@@ -58,7 +58,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         initUI();
         loadData();
         applyTheme();
-        ThemeManager.addThemeChangeListener(this);
+        AppSys.themes.addListener(this);
 
         // Tự động làm mới mỗi 5 phút
         refreshTimer = new Timer(5 * 60 * 1000, e -> loadData());
@@ -117,7 +117,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
         // Dòng cập nhật cuối
         lblLastUpdate = new JLabel("Cập nhật lúc: --");
-        lblLastUpdate.setFont(ThemeManager.getFont(11));
+        lblLastUpdate.setFont(AppSys.themes.getFont(11));
         lblLastUpdate.setAlignmentX(Component.LEFT_ALIGNMENT);
         mainPanel.add(lblLastUpdate);
 
@@ -144,10 +144,10 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
                 : "Bạn";
 
         lblHeader = new JLabel("Xin chào, " + username + "!");
-        lblHeader.setFont(ThemeManager.getBoldFont(22));
+        lblHeader.setFont(AppSys.themes.getBoldFont(22));
 
         lblSubtitle = new JLabel("Đây là tổng quan hoạt động cửa hàng hôm nay.");
-        lblSubtitle.setFont(ThemeManager.getFont(12));
+        lblSubtitle.setFont(AppSys.themes.getFont(12));
 
         textBlock.add(lblHeader);
         textBlock.add(Box.createVerticalStrut(3));
@@ -155,7 +155,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
         // Nút làm mới thủ công
         JButton btnRefresh = new JButton("⟳  Làm mới");
-        btnRefresh.setFont(ThemeManager.getFont(12));
+        btnRefresh.setFont(AppSys.themes.getFont(12));
         btnRefresh.setFocusPainted(false);
         btnRefresh.addActionListener(e -> loadData());
 
@@ -168,7 +168,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
     private JLabel buildSectionLabel(String text) {
         JLabel lbl = new JLabel(text);
-        lbl.setFont(ThemeManager.getBoldFont(13));
+        lbl.setFont(AppSys.themes.getBoldFont(13));
         lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
         return lbl;
     }
@@ -211,7 +211,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
      * Tạo một KPI card, trả về [JPanel card, JLabel value, JLabel change].
      */
     private Object[] kpiCard(String label, String value, String change, boolean positiveGood) {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
 
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
@@ -222,13 +222,13 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel lblTitle = new JLabel(label);
-        lblTitle.setFont(ThemeManager.getFont(10));
+        lblTitle.setFont(AppSys.themes.getFont(10));
         lblTitle.setForeground(theme.textSecondary);
         lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
         lblTitle.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
 
         JLabel lblVal = new JLabel(value);
-        lblVal.setFont(ThemeManager.getBoldFont(17));
+        lblVal.setFont(AppSys.themes.getBoldFont(17));
         lblVal.setForeground(theme.textPrimary);
         lblVal.setAlignmentX(Component.LEFT_ALIGNMENT);
         lblVal.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
@@ -239,7 +239,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
                 : (positiveGood ? new Color(180, 30, 30) : new Color(34, 139, 34));
 
         JLabel lblChange = new JLabel(change);
-        lblChange.setFont(ThemeManager.getFont(9));
+        lblChange.setFont(AppSys.themes.getFont(9));
         lblChange.setForeground(changeColor);
         lblChange.setAlignmentX(Component.LEFT_ALIGNMENT);
         lblChange.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
@@ -331,7 +331,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
                     max = v;
 
             // Màu theo theme
-            Theme theme = ThemeManager.getCurrentTheme();
+            Theme theme = AppSys.themes.getCurrent();
             Color barColor = theme.accent;
             Color hoverColor = barColor.brighter();
             Color labelColor = theme.textSecondary;
@@ -366,14 +366,14 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
                 // Giá trị trên đỉnh cột
                 String valStr = formatMillion(values[i]);
-                g2.setFont(ThemeManager.getFont(10));
+                g2.setFont(AppSys.themes.getFont(10));
                 g2.setColor(valueColor);
                 FontMetrics fm = g2.getFontMetrics();
                 int tx = bx + (bw - fm.stringWidth(valStr)) / 2;
                 g2.drawString(valStr, tx, by - 3);
 
                 // Nhãn ngày
-                g2.setFont(ThemeManager.getFont(11));
+                g2.setFont(AppSys.themes.getFont(11));
                 g2.setColor(labelColor);
                 FontMetrics fmL = g2.getFontMetrics();
                 int lx = bx + (bw - fmL.stringWidth(labels[i])) / 2;
@@ -405,7 +405,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         tableCard.setLayout(new BorderLayout(0, 8));
 
         JLabel tblTitle = new JLabel("🏆  Sản phẩm bán chạy");
-        tblTitle.setFont(ThemeManager.getBoldFont(12));
+        tblTitle.setFont(AppSys.themes.getBoldFont(12));
         tableCard.add(tblTitle, BorderLayout.NORTH);
 
         String[] cols = { "Sản phẩm", "Đã bán", "Tồn kho", "Trạng thái" };
@@ -416,11 +416,11 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
             }
         };
         tblTopProducts = new JTable(tableModel);
-        tblTopProducts.setFont(ThemeManager.getFont(12));
+        tblTopProducts.setFont(AppSys.themes.getFont(12));
         tblTopProducts.setRowHeight(24);
         tblTopProducts.setShowGrid(false);
         tblTopProducts.setIntercellSpacing(new Dimension(0, 0));
-        tblTopProducts.getTableHeader().setFont(ThemeManager.getBoldFont(11));
+        tblTopProducts.getTableHeader().setFont(AppSys.themes.getBoldFont(11));
         tblTopProducts.setFillsViewportHeight(true);
         // Render màu ô trạng thái
         tblTopProducts.getColumnModel().getColumn(3).setCellRenderer(new StatusCellRenderer());
@@ -434,12 +434,12 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         alertCard.setLayout(new BorderLayout(0, 8));
 
         JLabel alertTitle = new JLabel("⚠️  Cảnh báo tồn kho thấp");
-        alertTitle.setFont(ThemeManager.getBoldFont(12));
+        alertTitle.setFont(AppSys.themes.getBoldFont(12));
         alertCard.add(alertTitle, BorderLayout.NORTH);
 
         alertPanel = new JPanel();
         alertPanel.setLayout(new BoxLayout(alertPanel, BoxLayout.Y_AXIS));
-        Theme themeAlert = ThemeManager.getCurrentTheme();
+        Theme themeAlert = AppSys.themes.getCurrent();
         alertPanel.setBackground(themeAlert.background);
         alertPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -456,7 +456,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
     /** Tạo card có border và padding chuẩn theo theme */
     private JPanel buildCard() {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
         JPanel card = new JPanel();
         card.setBackground(theme.buttonBackground);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -658,7 +658,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
     }
 
     private JPanel buildAlertRow(String icon, String name, String detail) {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
         JPanel row = new JPanel(new BorderLayout(8, 0));
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         row.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
@@ -670,7 +670,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
                 new EmptyBorder(5, 10, 5, 10)));
 
         JLabel ico = new JLabel(icon);
-        ico.setFont(ThemeManager.getFont(16));
+        ico.setFont(AppSys.themes.getFont(16));
         ico.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         JPanel text = new JPanel();
@@ -679,13 +679,13 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         text.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         JLabel lName = new JLabel(name);
-        lName.setFont(ThemeManager.getBoldFont(12));
+        lName.setFont(AppSys.themes.getBoldFont(12));
         lName.setForeground(theme.textPrimary);
         lName.setAlignmentX(Component.LEFT_ALIGNMENT);
         lName.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
 
         JLabel lDetail = new JLabel(detail);
-        lDetail.setFont(ThemeManager.getFont(11));
+        lDetail.setFont(AppSys.themes.getFont(11));
         lDetail.setForeground(theme.textSecondary);
         lDetail.setAlignmentX(Component.LEFT_ALIGNMENT);
         lDetail.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
@@ -712,7 +712,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
     // ── Theme ─────────────────────────────────────────────────────────────────
 
     private void applyTheme() {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
         setBackground(theme.background);
         if (mainPanel != null)
             mainPanel.setBackground(theme.background);
@@ -743,6 +743,6 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
     public void cleanup() {
         if (refreshTimer != null)
             refreshTimer.stop();
-        ThemeManager.removeThemeChangeListener(this);
+        AppSys.themes.removeListener(this);
     }
 }

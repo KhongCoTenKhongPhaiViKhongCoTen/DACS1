@@ -45,7 +45,7 @@ public class MainFrame extends JFrame
         initFrame();
         initComponents();
         applyTheme();
-        ThemeManager.addThemeChangeListener(this);
+        AppSys.themes.addListener(this);
     }
 
     private void initFrame() {
@@ -113,7 +113,7 @@ public class MainFrame extends JFrame
     }
 
     private void applyTheme() {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
         getContentPane().setBackground(theme.background);
         contentPanel.setBackground(theme.background);
         applyThemeToComponent(contentPanel, theme);
@@ -149,7 +149,7 @@ public class MainFrame extends JFrame
     public void dispose() {
         homePage.cleanup();
         settingsPage.cleanup();
-        ThemeManager.removeThemeChangeListener(this);
+        AppSys.themes.removeListener(this);
         super.dispose();
     }
 

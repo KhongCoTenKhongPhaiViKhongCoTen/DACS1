@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import com.shopapp.AppSys;
 import com.shopapp.entity.Quyen;
 import com.shopapp.service.QuyenService;
 import com.shopapp.ui.components.BaseForm;
@@ -180,7 +181,7 @@ public class QuyenDialog extends BaseDialog {
     /** Tạo JTextField với thông số chung */
     protected JTextField createTextField() {
         JTextField tf = new JTextField(FIELD_COLUMNS);
-        tf.setFont(ThemeManager.getFont(FONT_FIELD));
+        tf.setFont(AppSys.themes.getFont(FONT_FIELD));
         return tf;
     }
 }

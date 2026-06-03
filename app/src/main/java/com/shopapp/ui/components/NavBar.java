@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.shopapp.ui.themes.*;
+import com.shopapp.AppSys;
 import com.shopapp.ui.listeners.PageChangeListener;
 
 public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
@@ -17,6 +18,8 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
     private JScrollPane scrollPane;
     private JButton currentSelectedButton;
     private List<PageChangeListener> pageListeners = new ArrayList<>();
+
+    private Theme theme = AppSys.themes.getCurrent();
 
     int width;
     int height;
@@ -27,7 +30,7 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         setLayout(new BorderLayout());
         initComponents();
         applyTheme();
-        ThemeManager.addThemeChangeListener(this);
+        AppSys.themes.addListener(this);
 
         scrollPane = new JScrollPane(navBar);
         scrollPane.setBorder(null);
@@ -38,7 +41,7 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         // Style
-        scrollPane.getViewport().setBackground(ThemeManager.getCurrentTheme().background);
+        scrollPane.getViewport().setBackground(theme.background);
 
         add(scrollPane, BorderLayout.WEST);
     }
@@ -104,8 +107,6 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         sectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         sectionPanel.setOpaque(false);
 
-        Theme theme = ThemeManager.getCurrentTheme();
-
         // State tracker
         boolean[] isExpanded = { false };
 
@@ -158,7 +159,6 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
             @Override
             public void mouseEntered(MouseEvent e) {
                 if (btnToggle != currentSelectedButton) {
-                    Theme theme = ThemeManager.getCurrentTheme();
                     btnToggle.setBackground(theme.accent);
                     btnToggle.setContentAreaFilled(true);
                 }
@@ -203,7 +203,6 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
             @Override
             public void mouseEntered(MouseEvent e) {
                 if (btn != currentSelectedButton) {
-                    Theme theme = ThemeManager.getCurrentTheme();
                     btn.setBackground(theme.accent);
                     btn.setOpaque(true);
                     btn.setContentAreaFilled(true);
@@ -245,7 +244,6 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
             @Override
             public void mouseEntered(MouseEvent e) {
                 if (btn != currentSelectedButton) {
-                    Theme theme = ThemeManager.getCurrentTheme();
                     btn.setBackground(theme.accent);
                     btn.setOpaque(true);
                     btn.setContentAreaFilled(true);
@@ -284,7 +282,7 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
     }
 
     private void applyTheme() {
-        Theme theme = ThemeManager.getCurrentTheme();
+        theme = AppSys.themes.getCurrent();
         navBar.setBackground(theme.background);
         setBackground(theme.background);
         navBar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, theme.borderColor));
@@ -295,8 +293,7 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
     }
 
     private void styleNavButton(JButton btn, boolean isSubButton) {
-        Theme theme = ThemeManager.getCurrentTheme();
-        btn.setFont(ThemeManager.getFont(isSubButton ? 13 : 14));
+        btn.setFont(AppSys.themes.getFont(isSubButton ? 13 : 14));
         btn.setForeground(isSubButton ? theme.textSecondary : theme.textPrimary);
         btn.setBorder(new EmptyBorder(12, 18, 12, 18));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -327,7 +324,6 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
         }
 
         currentSelectedButton = btn;
-        Theme theme = ThemeManager.getCurrentTheme();
         btn.setBackground(theme.accent);
         btn.setContentAreaFilled(true);
 
@@ -335,7 +331,7 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
     }
 
     public void cleanup() {
-        ThemeManager.removeThemeChangeListener(this);
+        AppSys.themes.removeListener(this);
         pageListeners.clear();
     }
 }

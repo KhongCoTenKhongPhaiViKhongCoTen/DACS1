@@ -5,6 +5,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import com.shopapp.AppSys;
 import com.shopapp.entity.SanPham;
 import com.shopapp.entity.TonKho;
 import com.shopapp.repository.impl.SanPhamRepositoryImpl;
@@ -69,7 +70,7 @@ public class TonKhoDialog extends BaseDialog {
         // Load products for combo box
         List<SanPham> productList = sanPhamService.findAll();
         cbProduct = new JComboBox<>(productList.toArray(new SanPham[0]));
-        cbProduct.setFont(ThemeManager.getFont(FONT_FIELD));
+        cbProduct.setFont(AppSys.themes.getFont(FONT_FIELD));
         tfQuantityOnHand = createTextField();
         tfLocation = createTextField();
 

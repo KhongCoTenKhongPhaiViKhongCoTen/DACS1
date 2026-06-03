@@ -8,155 +8,78 @@ import java.awt.Font;
  */
 public class AppFont {
 
-    // Font names that support Vietnamese characters well
-    private static final String[] VIETNAMESE_FONT_NAMES = {
-        "Arial",
-        "Tahoma",
-        "Segoe UI",
-        "SansSerif"
+    // Singleton Instance
+    private static final AppFont instance = new AppFont();
+
+    private AppFont() {
+    } // Chặn khởi tạo ngoài
+
+    public static AppFont getInstance() {
+        return instance;
+    }
+
+    private final String[] VIETNAMESE_FONT_NAMES = {
+            "Arial", "Tahoma", "Segoe UI", "SansSerif"
     };
 
-    // Fallback font for emojis
-    private static final String[] EMOJI_FONT_NAMES = {
-        "Segoe UI Emoji",
-        "Apple Color Emoji",
-        "Noto Color Emoji",
-        "Android Emoji",
-        "EmojiOne Color",
-        "SansSerif"
+    private final String[] EMOJI_FONT_NAMES = {
+            "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji",
+            "Android Emoji", "EmojiOne Color", "SansSerif"
     };
 
-    /**
-     * Gets a font that supports Vietnamese characters well.
-     *
-     * @param style Font style (Font.PLAIN, Font.BOLD, Font.ITALIC)
-     * @param size Font size in points
-     * @return Font suitable for Vietnamese text
-     */
-    public static Font getVietnameseFont(int style, int size) {
+    public Font getVietnameseFont(int style, int size) {
         Font font = null;
-
-        // Try to find a font that supports Vietnamese
         for (String fontName : VIETNAMESE_FONT_NAMES) {
             font = new Font(fontName, style, size);
-            // Check if the font can actually render Vietnamese characters
             if (canDisplayVietnamese(font)) {
                 return font;
             }
         }
-
-        // Fallback to default font if none found
         return new Font(Font.SANS_SERIF, style, size);
     }
 
-    /**
-     * Gets a font that supports emojis well.
-     *
-     * @param style Font style (Font.PLAIN, Font.BOLD, Font.ITALIC)
-     * @param size Font size in points
-     * @return Font suitable for emojis
-     */
-    public static Font getEmojiFont(int style, int size) {
+    public Font getEmojiFont(int style, int size) {
         Font font = null;
-
-        // Try to find a font that supports emojis
         for (String fontName : EMOJI_FONT_NAMES) {
             font = new Font(fontName, style, size);
-            // Check if the font can actually render emojis
             if (canDisplayEmoji(font)) {
                 return font;
             }
         }
-
-        // Fallback to default font if none found
         return new Font(Font.SANS_SERIF, style, size);
     }
 
-    /**
-     * Gets a font that supports both Vietnamese and emojis.
-     *
-     * @param style Font style (Font.PLAIN, Font.BOLD, Font.ITALIC)
-     * @param size Font size in points
-     * @return Font suitable for both Vietnamese and emojis
-     */
-    public static Font getUIFont(int style, int size) {
-        // Try Vietnamese font first
+    public Font getUIFont(int style, int size) {
         Font font = getVietnameseFont(style, size);
-
-        // If it doesn't support emojis well, try to find a combined solution
         if (!canDisplayEmoji(font)) {
-            // Try emoji font
             Font emojiFont = getEmojiFont(style, size);
             if (canDisplayVietnamese(emojiFont)) {
                 return emojiFont;
             }
         }
-
         return font;
     }
 
-    /**
-     * Checks if a font can display Vietnamese characters properly.
-     *
-     * @param font Font to test
-     * @return true if font can display Vietnamese characters
-     */
-    private static boolean canDisplayVietnamese(Font font) {
-        // Test characters that are problematic in some fonts
+    // Các hàm bổ sung để bạn gọi cho ngắn gọn: .plain(), .bold(), .italic()
+    public Font plain(float size) {
+        return ThemeManager.getInstance().getFont(size);
+    }
+
+    public Font bold(float size) {
+        return ThemeManager.getInstance().getBoldFont(size);
+    }
+
+    public Font italic(float size) {
+        return ThemeManager.getInstance().getItalicFont(size);
+    }
+
+    private boolean canDisplayVietnamese(Font font) {
         String testChars = "ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôôơđơưă";
-        return canDisplayString(font, testChars);
+        return font.canDisplayUpTo(testChars) == -1;
     }
 
-    /**
-     * Checks if a font can display emojis properly.
-     *
-     * @param font Font to test
-     * @return true if font can display emojis
-     */
-    private static boolean canDisplayEmoji(Font font) {
-        // Test common emojis
+    private boolean canDisplayEmoji(Font font) {
         String testChars = "👤🏠⚙️👥📊💾➕✏️🗑️";
-        return canDisplayString(font, testChars);
-    }
-
-    /**
-     * Checks if a font can display a given string.
-     *
-     * @param font Font to test
-     * @param text String to test
-     * @return true if font can display all characters in the string
-     */
-    private static boolean canDisplayString(Font font, String text) {
-        return font.canDisplayUpTo(text) == -1;
-    }
-
-    /**
-     * Gets the default UI font for the application.
-     *
-     * @param size Font size in points
-     * @return Default UI font
-     */
-    public static Font getDefaultFont(float size) {
-        return getUIFont(Font.PLAIN, (int) size);
-    }
-
-    /**
-     * Gets the bold UI font for the application.
-     *
-     * @param size Font size in points
-     * @return Bold UI font
-     */
-    public static Font getBoldFont(float size) {
-        return getUIFont(Font.BOLD, (int) size);
-    }
-
-    /**
-     * Gets the italic UI font for the application.
-     *
-     * @param size Font size in points
-     * @return Italic UI font
-     */
-    public static Font getItalicFont(float size) {
-        return getUIFont(Font.ITALIC, (int) size);
+        return font.canDisplayUpTo(testChars) == -1;
     }
 }

@@ -46,31 +46,4 @@ public enum Theme {
         this.textSecondary = textSecondary;
         this.borderColor = borderColor;
     }
-
-    /**
-     * Gets the default UI font for this theme.
-     * @param size Font size in points
-     * @return Font suitable for UI elements
-     */
-    public Font getFont(float size) {
-        return AppFont.getUIFont(Font.PLAIN, (int) size);
-    }
-
-    /**
-     * Gets the bold UI font for this theme.
-     * @param size Font size in points
-     * @return Bold font suitable for UI elements
-     */
-    public Font getBoldFont(float size) {
-        return AppFont.getUIFont(Font.BOLD, (int) size);
-    }
-
-    /**
-     * Gets the italic UI font for this theme.
-     * @param size Font size in points
-     * @return Italic font suitable for UI elements
-     */
-    public Font getItalicFont(float size) {
-        return AppFont.getUIFont(Font.ITALIC, (int) size);
-    }
 }

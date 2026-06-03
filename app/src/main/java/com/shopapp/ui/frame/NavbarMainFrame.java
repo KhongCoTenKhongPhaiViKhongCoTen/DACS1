@@ -5,9 +5,7 @@ import com.shopapp.entity.NguoiDung;
 import com.shopapp.ui.components.IconTextButton;
 import com.shopapp.ui.components.NavBar;
 import com.shopapp.ui.themes.Theme;
-import com.shopapp.ui.themes.ThemeManager;
 import com.shopapp.util.AutoLoginManager;
-import com.shopapp.ui.themes.AppFont;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -78,14 +76,15 @@ public class NavbarMainFrame {
 
     private static JButton createLogoutButton() {
         JButton btn = new IconTextButton("👋", "Đăng xuất", IconTextButton.Orientation.HORIZONTAL);
-        btn.setFont(AppFont.getEmojiFont(Font.PLAIN, 14));
+        // FIX: Sửa lại đường dẫn truy cập hàm emoji font qua AppSys.font
+        btn.setFont(AppSys.font.getEmojiFont(Font.PLAIN, 14));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setAlignmentX(Component.LEFT_ALIGNMENT);
-        btn.setMaximumSize(new Dimension(300, 56)); // ← fix cứng bằng width navbar
+        btn.setMaximumSize(new Dimension(300, 56));
         btn.setPreferredSize(new Dimension(300, 56));
         btn.setBorder(new EmptyBorder(12, 18, 12, 18));
-        btn.setForeground(ThemeManager.getCurrentTheme().textPrimary);
+        btn.setForeground(AppSys.themes.getCurrent().textPrimary);
         btn.setOpaque(false);
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
@@ -101,7 +100,7 @@ public class NavbarMainFrame {
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
                 btn.setBackground(UIManager.getColor("Panel.background"));
-                btn.setForeground(ThemeManager.getCurrentTheme().textPrimary);
+                btn.setForeground(AppSys.themes.getCurrent().textPrimary);
             }
         });
 
@@ -109,7 +108,7 @@ public class NavbarMainFrame {
     }
 
     private static JPanel accountNavBar() {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
         NguoiDung currentUser = AppSys.getNguoiDung();
 
         JPanel accountNavBar = new JPanel();
@@ -124,7 +123,8 @@ public class NavbarMainFrame {
         String role = (currentUser != null) ? currentUser.getRole().toString() : "";
 
         JLabel avatar = new JLabel("👤", SwingConstants.CENTER);
-        avatar.setFont(AppFont.getEmojiFont(Font.PLAIN, 30));
+        // FIX: Sửa đường dẫn lấy emoji font
+        avatar.setFont(AppSys.font.getEmojiFont(Font.PLAIN, 30));
         avatar.setPreferredSize(new Dimension(56, 56));
         avatar.setMaximumSize(new Dimension(56, 56));
         avatar.setOpaque(true);
@@ -133,7 +133,8 @@ public class NavbarMainFrame {
         avatar.putClientProperty("isAvatar", Boolean.TRUE);
 
         JLabel lblUsername = new JLabel(username);
-        lblUsername.setFont(ThemeManager.getBoldFont(15));
+        // FIX: Gọi trực tiếp font đậm qua bộ kết nối AppSys.font
+        lblUsername.setFont(AppSys.font.bold(15));
         lblUsername.putClientProperty("themeText", "primary");
 
         JPanel infoPanel = new JPanel();
@@ -144,21 +145,24 @@ public class NavbarMainFrame {
 
         if (!fullName.isBlank()) {
             JLabel lblFullName = new JLabel(fullName);
-            lblFullName.setFont(ThemeManager.getFont(13));
+            // FIX: Gọi font thường qua AppSys.font
+            lblFullName.setFont(AppSys.font.plain(13));
             lblFullName.putClientProperty("themeText", "secondary");
             infoPanel.add(lblFullName);
         }
 
         if (!role.isBlank()) {
             JLabel lblRole = new JLabel(role);
-            lblRole.setFont(ThemeManager.getFont(13));
+            // FIX: Gọi font thường qua AppSys.font
+            lblRole.setFont(AppSys.font.plain(13));
             lblRole.putClientProperty("themeText", "secondary");
             infoPanel.add(lblRole);
         }
 
         if (currentUser == null) {
             JLabel lblHint = new JLabel("Vui lòng đăng nhập để tiếp tục");
-            lblHint.setFont(ThemeManager.getFont(13));
+            // FIX: Gọi font thường qua AppSys.font
+            lblHint.setFont(AppSys.font.plain(13));
             lblHint.putClientProperty("themeText", "secondary");
             infoPanel.add(lblHint);
         }
@@ -185,8 +189,9 @@ public class NavbarMainFrame {
         // Apply initial theme colors
         applyAccountNavBarTheme(accountNavBar, theme);
 
-        // Add listener for theme changes
-        ThemeManager.addThemeChangeListener(new ThemeManager.ThemeChangeListener() {
+        // FIX: Đổi từ ThemeManager.addChangeListener sang AppSys.themes.addListener
+        // đúng chuẩn kiến trúc mới
+        AppSys.themes.addListener(new com.shopapp.ui.themes.ThemeManager.ThemeChangeListener() {
             @Override
             public void onThemeChanged(Theme newTheme) {
                 applyAccountNavBarTheme(accountNavBar, newTheme);

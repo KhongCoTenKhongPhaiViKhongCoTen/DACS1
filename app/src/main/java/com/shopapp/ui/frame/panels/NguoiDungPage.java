@@ -60,17 +60,17 @@ public class NguoiDungPage extends BasePage {
     protected void addCustomFilters() {
         // Status filter
         JLabel lblStatus = new JLabel("Trạng thái:");
-        lblStatus.setFont(ThemeManager.getFont(12));
+        lblStatus.setFont(AppSys.themes.getFont(12));
         cbFilterStatus = new JComboBox<>(new String[] { "Tất cả", "Hoạt động", "Khóa" });
-        cbFilterStatus.setFont(ThemeManager.getFont(12));
+        cbFilterStatus.setFont(AppSys.themes.getFont(12));
         cbFilterStatus.addActionListener(e -> showTableData(true));
 
         // Role filter
         JLabel lblRole = new JLabel("Vai trò:");
-        lblRole.setFont(ThemeManager.getFont(12));
+        lblRole.setFont(AppSys.themes.getFont(12));
 
         cbFilterRole = new JComboBox<>();
-        cbFilterRole.setFont(ThemeManager.getFont(12));
+        cbFilterRole.setFont(AppSys.themes.getFont(12));
         cbFilterRole.addItem("Tất cả");
 
         try {
@@ -92,7 +92,7 @@ public class NguoiDungPage extends BasePage {
     @Override
     protected void applyTheme() {
         super.applyTheme();
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
         if (cbFilterStatus != null) {
             cbFilterStatus.setBackground(theme.buttonBackground);
             cbFilterStatus.setForeground(theme.textPrimary);

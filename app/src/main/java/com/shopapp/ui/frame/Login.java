@@ -36,7 +36,7 @@ public class Login extends JFrame {
     private JPanel buttonPanel;
     private JButton loginButton = new JButton("Login");
 
-    Theme currentTheme = ThemeManager.getCurrentTheme();
+    Theme currentTheme = AppSys.themes.getCurrent();
 
     public Login() {
         setTitle("Login");
@@ -118,8 +118,8 @@ public class Login extends JFrame {
 
         JLabel userJLabel = new JLabel("Username:");
         JLabel passJLabel = new JLabel("Password:");
-        userJLabel.setFont(ThemeManager.getFont(16));
-        passJLabel.setFont(ThemeManager.getFont(16));
+        userJLabel.setFont(AppSys.themes.getFont(16));
+        passJLabel.setFont(AppSys.themes.getFont(16));
 
         rememberMeCheckbox.setSelected(AutoLoginManager.hasSavedCredentials());
 

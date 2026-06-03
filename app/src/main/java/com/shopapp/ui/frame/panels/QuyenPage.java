@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.awt.Frame;
 import javax.swing.*;
+
+import com.shopapp.AppSys;
 import com.shopapp.entity.Quyen;
 import com.shopapp.repository.impl.QuyenRepositoryImpl;
 import com.shopapp.service.QuyenService;
@@ -37,12 +39,12 @@ public class QuyenPage extends BasePage {
     @Override
     protected void addCustomFilters() {
         JLabel lblModule = new JLabel("Module:");
-        lblModule.setFont(ThemeManager.getFont(12));
+        lblModule.setFont(AppSys.themes.getFont(12));
 
         cbFilterModule = new JComboBox<>(new String[] {
                 "Tất cả", "PRODUCT", "ORDER", "USER", "REPORT"
         });
-        cbFilterModule.setFont(ThemeManager.getFont(12));
+        cbFilterModule.setFont(AppSys.themes.getFont(12));
         cbFilterModule.addActionListener(e -> showTableData(true));
 
         filterPanel.add(lblModule);
@@ -52,7 +54,7 @@ public class QuyenPage extends BasePage {
     @Override
     protected void applyTheme() {
         super.applyTheme();
-        com.shopapp.ui.themes.Theme theme = ThemeManager.getCurrentTheme();
+        com.shopapp.ui.themes.Theme theme = AppSys.themes.getCurrent();
         if (cbFilterModule != null) {
             cbFilterModule.setBackground(theme.buttonBackground);
             cbFilterModule.setForeground(theme.textPrimary);

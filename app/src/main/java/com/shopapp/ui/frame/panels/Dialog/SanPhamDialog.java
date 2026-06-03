@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import com.shopapp.AppSys;
 import com.shopapp.entity.DanhMuc;
 import com.shopapp.entity.NhaCungCap;
 import com.shopapp.entity.SanPham;
@@ -86,8 +87,8 @@ public class SanPhamDialog extends BaseDialog {
         List<NhaCungCap> supplierList = nhaCungCapService.findAll();
         cbCategory = new JComboBox<>(categoryList.toArray(new DanhMuc[0]));
         cbSupplier = new JComboBox<>(supplierList.toArray(new NhaCungCap[0]));
-        cbCategory.setFont(ThemeManager.getFont(FONT_FIELD));
-        cbSupplier.setFont(ThemeManager.getFont(FONT_FIELD));
+        cbCategory.setFont(AppSys.themes.getFont(FONT_FIELD));
+        cbSupplier.setFont(AppSys.themes.getFont(FONT_FIELD));
 
         tfSku = createTextField();
         tfProductName = createTextField();

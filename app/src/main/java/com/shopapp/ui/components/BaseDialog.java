@@ -5,8 +5,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import com.shopapp.AppSys;
 import com.shopapp.ui.themes.Theme;
-import com.shopapp.ui.themes.ThemeManager;
 
 /**
  * Abstract class chung cho các dialog Thêm mới và Chỉnh sửa trong giao diện
@@ -74,7 +74,7 @@ public abstract class BaseDialog extends JDialog {
         // Header
         headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         titleLabel = new JLabel(getTitle());
-        titleLabel.setFont(ThemeManager.getBoldFont(FONT_TITLE));
+        titleLabel.setFont(AppSys.themes.getBoldFont(FONT_TITLE));
         headerPanel.add(titleLabel);
 
         // Buttons
@@ -129,21 +129,21 @@ public abstract class BaseDialog extends JDialog {
     /** Tạo JTextField với thông số chung */
     protected JTextField createTextField() {
         JTextField tf = new JTextField(FIELD_COLUMNS);
-        tf.setFont(ThemeManager.getFont(FONT_FIELD));
+        tf.setFont(AppSys.themes.getFont(FONT_FIELD));
         return tf;
     }
 
     /** Tạo JPasswordField với thông số chung */
     protected JPasswordField createPasswordField() {
         JPasswordField pf = new JPasswordField(FIELD_COLUMNS);
-        pf.setFont(ThemeManager.getFont(FONT_FIELD));
+        pf.setFont(AppSys.themes.getFont(FONT_FIELD));
         return pf;
     }
 
     /** Tạo JTextArea với thông số chung */
     protected JTextArea createTextArea(int rows, int columns) {
         JTextArea ta = new JTextArea(rows, columns);
-        ta.setFont(ThemeManager.getFont(FONT_FIELD));
+        ta.setFont(AppSys.themes.getFont(FONT_FIELD));
         ta.setLineWrap(true);
         ta.setWrapStyleWord(true);
         return ta;
@@ -198,7 +198,7 @@ public abstract class BaseDialog extends JDialog {
     }
 
     protected void applyCurrentTheme() {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
         styleComponents(this, theme);
         headerPanel.setBackground(theme.background);
         buttonPanel.setBackground(theme.background);
@@ -210,35 +210,35 @@ public abstract class BaseDialog extends JDialog {
         for (Component comp : container.getComponents()) {
             if (comp instanceof JLabel label) {
                 label.setForeground(theme.textPrimary);
-                label.setFont(ThemeManager.getFont(FONT_LABEL));
+                label.setFont(AppSys.themes.getFont(FONT_LABEL));
             } else if (comp instanceof JPasswordField pf) {
                 // Check JPasswordField TRƯỚC JTextField vì nó là subclass
                 pf.setBackground(theme.buttonBackground);
                 pf.setForeground(theme.textPrimary);
                 pf.setCaretColor(theme.textPrimary);
-                pf.setFont(ThemeManager.getFont(FONT_FIELD));
+                pf.setFont(AppSys.themes.getFont(FONT_FIELD));
             } else if (comp instanceof JTextField tf) {
                 tf.setBackground(theme.buttonBackground);
                 tf.setForeground(theme.textPrimary);
                 tf.setCaretColor(theme.textPrimary);
-                tf.setFont(ThemeManager.getFont(FONT_FIELD));
+                tf.setFont(AppSys.themes.getFont(FONT_FIELD));
             } else if (comp instanceof JTextArea ta) {
                 ta.setBackground(theme.buttonBackground);
                 ta.setForeground(theme.textPrimary);
                 ta.setCaretColor(theme.textPrimary);
-                ta.setFont(ThemeManager.getFont(FONT_FIELD));
+                ta.setFont(AppSys.themes.getFont(FONT_FIELD));
             } else if (comp instanceof JComboBox<?> cb) {
                 cb.setBackground(theme.buttonBackground);
                 cb.setForeground(theme.textPrimary);
-                cb.setFont(ThemeManager.getFont(FONT_FIELD));
+                cb.setFont(AppSys.themes.getFont(FONT_FIELD));
             } else if (comp instanceof JCheckBox chk) {
                 chk.setOpaque(false);
                 chk.setForeground(theme.textPrimary);
-                chk.setFont(ThemeManager.getFont(FONT_FIELD));
+                chk.setFont(AppSys.themes.getFont(FONT_FIELD));
             } else if (comp instanceof JButton btn) {
                 btn.setBackground(theme.buttonBackground);
                 btn.setForeground(theme.buttonForeground);
-                btn.setFont(ThemeManager.getBoldFont(FONT_BUTTON));
+                btn.setFont(AppSys.themes.getBoldFont(FONT_BUTTON));
                 btn.setFocusPainted(false);
             } else if (comp instanceof Container childContainer) {
                 styleComponents(childContainer, theme);

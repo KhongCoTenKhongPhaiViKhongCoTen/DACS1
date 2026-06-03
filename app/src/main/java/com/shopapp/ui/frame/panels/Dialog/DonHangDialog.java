@@ -8,6 +8,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import com.shopapp.AppSys;
 import com.shopapp.entity.DonHang;
 import com.shopapp.entity.KhachHang;
 import com.shopapp.entity.NguoiDung;
@@ -87,8 +88,8 @@ public class DonHangDialog extends BaseDialog {
         List<NguoiDung> userList = nguoiDungService.findAll();
         cbCustomer = new JComboBox<>(customerList.toArray(new KhachHang[0]));
         cbUser = new JComboBox<>(userList.toArray(new NguoiDung[0]));
-        cbCustomer.setFont(ThemeManager.getFont(FONT_FIELD));
-        cbUser.setFont(ThemeManager.getFont(FONT_FIELD));
+        cbCustomer.setFont(AppSys.themes.getFont(FONT_FIELD));
+        cbUser.setFont(AppSys.themes.getFont(FONT_FIELD));
 
         tfOrderNumber = createTextField();
         tfOrderDate = createTextField();

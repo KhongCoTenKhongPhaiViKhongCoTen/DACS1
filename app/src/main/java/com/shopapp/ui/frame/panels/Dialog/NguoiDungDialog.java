@@ -81,11 +81,11 @@ public class NguoiDungDialog extends BaseDialog {
         tfPhone = createTextField();
 
         cbRole = new JComboBox<>();
-        cbRole.setFont(ThemeManager.getFont(FONT_FIELD));
+        cbRole.setFont(AppSys.themes.getFont(FONT_FIELD));
 
         chkActive = new JCheckBox("Hoạt động");
         chkActive.setSelected(true);
-        chkActive.setFont(ThemeManager.getFont(FONT_FIELD));
+        chkActive.setFont(AppSys.themes.getFont(FONT_FIELD));
 
         form.addRow(new JLabel(user == null ? "Username *" : "Username"), tfUsername);
         form.addRow(new JLabel(user == null ? "Mật khẩu *" : "Mật khẩu mới"), pfPassword);

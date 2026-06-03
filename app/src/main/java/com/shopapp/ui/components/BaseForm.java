@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.JComponent;
 
+import com.shopapp.AppSys;
 import com.shopapp.ui.themes.Theme;
 import com.shopapp.ui.themes.ThemeManager;
 
@@ -83,12 +84,12 @@ public class BaseForm extends javax.swing.JPanel implements ThemeManager.ThemeCh
     }
 
     public void setTheme(Theme theme) {
-        ThemeManager.setTheme(theme);
+        AppSys.themes.set(theme);
         applyTheme();
     }
 
     private void applyTheme() {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
         setBackground(theme.background);
     }
 

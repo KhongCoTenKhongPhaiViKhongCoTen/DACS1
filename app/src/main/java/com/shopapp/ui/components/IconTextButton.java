@@ -2,6 +2,8 @@ package com.shopapp.ui.components;
 
 import javax.swing.*;
 import java.awt.*;
+
+import com.shopapp.AppSys;
 import com.shopapp.ui.themes.*;
 
 public class IconTextButton extends JButton {
@@ -28,14 +30,14 @@ public class IconTextButton extends JButton {
 
         // icon - set size cụ thể
         iconLabel = new JLabel(icon);
-        iconLabel.setFont(AppFont.getEmojiFont(Font.PLAIN, 16));
+        iconLabel.setFont(AppSys.font.getEmojiFont(Font.PLAIN, 16));
         iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
         iconLabel.setVerticalAlignment(SwingConstants.CENTER);
         iconLabel.setPreferredSize(new Dimension(30, 30));
 
         // text
         textLabel = new JLabel(text);
-        textLabel.setFont(ThemeManager.getFont(14));
+        textLabel.setFont(AppSys.themes.getFont(14));
         textLabel.setHorizontalAlignment(SwingConstants.LEFT);
         textLabel.setVerticalAlignment(SwingConstants.CENTER);
 
@@ -61,8 +63,8 @@ public class IconTextButton extends JButton {
             add(panel);
         }
 
-        updateColorsAndFont(ThemeManager.getCurrentTheme());
-        ThemeManager.addThemeChangeListener(themeChangeListener);
+        updateColorsAndFont(AppSys.themes.getCurrent());
+        AppSys.themes.addListener(themeChangeListener);
     }
 
     public IconTextButton(String icon, String text) {
@@ -104,6 +106,6 @@ public class IconTextButton extends JButton {
     @Override
     public void removeNotify() {
         super.removeNotify();
-        ThemeManager.removeThemeChangeListener(themeChangeListener);
+        AppSys.themes.removeListener(themeChangeListener);
     }
 }

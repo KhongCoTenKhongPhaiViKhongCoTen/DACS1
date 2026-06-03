@@ -5,6 +5,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
+import com.shopapp.AppSys;
 import com.shopapp.ui.themes.*;
 
 /**
@@ -23,7 +24,7 @@ public class SettingsPage extends JPanel
 
         // Header
         JLabel lblHeader = new JLabel("⚙️ Settings");
-        lblHeader.setFont(ThemeManager.getBoldFont(28));
+        lblHeader.setFont(AppSys.themes.getBoldFont(28));
         add(lblHeader, BorderLayout.NORTH);
 
         // Content panel
@@ -48,7 +49,7 @@ public class SettingsPage extends JPanel
 
         // Apply theme
         applyTheme();
-        ThemeManager.addThemeChangeListener(this);
+        AppSys.themes.addListener(this);
     }
 
     /**
@@ -61,7 +62,7 @@ public class SettingsPage extends JPanel
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel lblTheme = new JLabel("Select Theme:");
-        lblTheme.setFont(ThemeManager.getBoldFont(14));
+        lblTheme.setFont(AppSys.themes.getBoldFont(14));
         panel.add(lblTheme);
         panel.add(Box.createVerticalStrut(10));
 
@@ -70,12 +71,12 @@ public class SettingsPage extends JPanel
 
         // Config radio buttons
         for (JRadioButton rdo : new JRadioButton[] { rdoDark, rdoLight }) {
-            rdo.setFont(ThemeManager.getFont(12));
+            rdo.setFont(AppSys.themes.getFont(12));
             rdo.setFocusPainted(false);
             rdo.setOpaque(false); // ← Transparent background
         }
 
-        Theme currentTheme = ThemeManager.getCurrentTheme();
+        Theme currentTheme = AppSys.themes.getCurrent();
         if (currentTheme == Theme.DARK) {
             rdoDark.setSelected(true);
         } else {
@@ -88,13 +89,13 @@ public class SettingsPage extends JPanel
 
         rdoDark.addActionListener(e -> {
             if (rdoDark.isSelected()) {
-                ThemeManager.setTheme(Theme.DARK);
+                AppSys.themes.set(Theme.DARK);
             }
         });
 
         rdoLight.addActionListener(e -> {
             if (rdoLight.isSelected()) {
-                ThemeManager.setTheme(Theme.LIGHT);
+                AppSys.themes.set(Theme.LIGHT);
             }
         });
 
@@ -111,11 +112,11 @@ public class SettingsPage extends JPanel
         panel.add(Box.createVerticalStrut(15));
 
         JLabel lblPreviewTitle = new JLabel("Preview:");
-        lblPreviewTitle.setFont(ThemeManager.getBoldFont(12));
+        lblPreviewTitle.setFont(AppSys.themes.getBoldFont(12));
         panel.add(lblPreviewTitle);
 
         lblThemePreview = new JLabel("This is preview text");
-        lblThemePreview.setFont(ThemeManager.getFont(12));
+        lblThemePreview.setFont(AppSys.themes.getFont(12));
         lblThemePreview.setBorder(new EmptyBorder(10, 10, 10, 10));
         panel.add(lblThemePreview);
 
@@ -135,17 +136,17 @@ public class SettingsPage extends JPanel
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel lblAppName = new JLabel("Shop Quần Áo");
-        lblAppName.setFont(ThemeManager.getBoldFont(14));
+        lblAppName.setFont(AppSys.themes.getBoldFont(14));
         panel.add(lblAppName);
 
         JLabel lblVersion = new JLabel("Version: 1.0.0");
-        lblVersion.setFont(ThemeManager.getFont(12));
+        lblVersion.setFont(AppSys.themes.getFont(12));
         panel.add(lblVersion);
 
         panel.add(Box.createVerticalStrut(5));
 
         JLabel lblAuthor = new JLabel("Author: Your Name");
-        lblAuthor.setFont(ThemeManager.getFont(12));
+        lblAuthor.setFont(AppSys.themes.getFont(12));
         panel.add(lblAuthor);
 
         panel.setMaximumSize(new Dimension(400, 120));
@@ -154,7 +155,7 @@ public class SettingsPage extends JPanel
     }
 
     private void applyTheme() {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
 
         // Apply to panel
         setBackground(theme.background);
@@ -211,6 +212,6 @@ public class SettingsPage extends JPanel
     }
 
     public void cleanup() {
-        ThemeManager.removeThemeChangeListener(this);
+        AppSys.themes.removeListener(this);
     }
 }

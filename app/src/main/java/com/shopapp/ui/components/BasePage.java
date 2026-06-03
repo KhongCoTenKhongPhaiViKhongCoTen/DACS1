@@ -12,6 +12,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
+import com.shopapp.AppSys;
 import com.shopapp.ui.themes.Theme;
 import com.shopapp.ui.themes.ThemeManager;
 import com.shopapp.ui.themes.ThemeManager.ThemeChangeListener;
@@ -72,7 +73,7 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         initUI(columnTableNames);
         initEvents();
         applyTheme();
-        ThemeManager.addThemeChangeListener(this);
+        AppSys.themes.addListener(this);
     }
 
     protected void initBase() {
@@ -193,7 +194,7 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
     // ── Theme ─────────────────────────────────────────────────────────────────
 
     protected void applyTheme() {
-        Theme theme = ThemeManager.getCurrentTheme();
+        Theme theme = AppSys.themes.getCurrent();
 
         if (topPanel != null)
             topPanel.setBackground(theme.background);
@@ -218,7 +219,7 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
             table.setBackground(theme.background);
             table.setForeground(theme.foreground);
             table.setGridColor(theme.borderColor);
-            table.setFont(theme.getFont(15));
+            table.setFont(AppSys.themes.getFont(15));
             table.setSelectionBackground(theme.accent);
             table.setSelectionForeground(theme.buttonForeground);
         }
@@ -228,18 +229,18 @@ public abstract class BasePage extends JPanel implements ThemeChangeListener {
         if (tfSearch != null) {
             tfSearch.setBackground(theme.buttonBackground);
             tfSearch.setForeground(theme.textPrimary);
-            tfSearch.setFont(theme.getFont(12));
+            tfSearch.setFont(AppSys.themes.getFont(12));
         }
         if (tfSearchLabel != null) {
             tfSearchLabel.setForeground(theme.textPrimary);
-            tfSearchLabel.setFont(theme.getFont(12));
+            tfSearchLabel.setFont(AppSys.themes.getFont(12));
         }
     }
 
     private void applyButtonTheme(JButton button, Theme theme) {
         button.setBackground(theme.buttonBackground);
         button.setForeground(theme.buttonForeground);
-        button.setFont(theme.getFont(12));
+        button.setFont(AppSys.themes.getFont(12));
         button.setFocusPainted(false);
         button.setBorderPainted(true);
     }
