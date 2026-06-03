@@ -115,7 +115,6 @@ public class KhachHangDialog extends BaseDialog {
         String fullName = tfFullName.getText().trim();
         String email = tfEmail.getText().trim();
         String phone = tfPhone.getText().trim();
-        String address = taAddress.getText().trim();
         String loyaltyPointsText = tfLoyaltyPoints.getText().trim();
 
         if (fullName.isEmpty()) {

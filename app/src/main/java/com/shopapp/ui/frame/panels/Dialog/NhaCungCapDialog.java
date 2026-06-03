@@ -105,7 +105,6 @@ public class NhaCungCapDialog extends BaseDialog {
     @Override
     protected boolean applyCustomValidation() {
         String companyName = tfCompanyName.getText().trim();
-        String contactName = tfContactName.getText().trim();
         String phone = tfPhone.getText().trim();
         String email = tfEmail.getText().trim();
 

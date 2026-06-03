@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.swing.*;
-import com.shopapp.entity.DanhMuc;
-import com.shopapp.entity.NhaCungCap;
 import com.shopapp.entity.SanPham;
 import com.shopapp.repository.impl.SanPhamRepositoryImpl;
 import com.shopapp.service.SanPhamService;

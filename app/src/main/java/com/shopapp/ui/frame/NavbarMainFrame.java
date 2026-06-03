@@ -33,7 +33,7 @@ public class NavbarMainFrame {
 
         navBar.addHeader(accountNavBar());
 
-        // navBar.addNavButton("🏠", "Trang chủ", PageKey.HOME);
+        navBar.addNavButton("🏠", "Trang chủ", PageKey.HOME);
 
         // Quản lý tài khoản section - requires user permissions
         if (AppSys.quyen().hasAnyCode("USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE")) {

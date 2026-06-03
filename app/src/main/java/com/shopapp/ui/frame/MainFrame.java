@@ -64,7 +64,7 @@ public class MainFrame extends JFrame
         add(navbar, BorderLayout.WEST);
 
         // Add pages to content panel
-        // contentPanel.add(homePage, PageKey.HOME);
+        contentPanel.add(homePage, PageKey.HOME);
         contentPanel.add(settingsPage, PageKey.SETTINGS);
 
         if (AppSys.quyen().hasAnyCode("USER_READ")) {

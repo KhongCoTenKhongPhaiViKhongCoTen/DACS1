@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.swing.*;
-import com.shopapp.entity.SanPham;
 import com.shopapp.entity.TonKho;
 import com.shopapp.repository.impl.TonKhoRepositoryImpl;
 import com.shopapp.service.TonKhoService;

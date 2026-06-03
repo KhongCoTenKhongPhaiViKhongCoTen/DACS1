@@ -37,8 +37,8 @@ public class TonKhoDialog extends BaseDialog {
     // ── Constructor ───────────────────────────────────────────────────────────
 
     /**
-     * @param owner       Cửa sổ cha
-     * @param tonKho      null = Thêm mới, khác null = Sửa thông tin
+     * @param owner         Cửa sổ cha
+     * @param tonKho        null = Thêm mới, khác null = Sửa thông tin
      * @param tonKhoService Service xử lý TonKho
      */
     public TonKhoDialog(
@@ -104,7 +104,6 @@ public class TonKhoDialog extends BaseDialog {
     protected boolean applyCustomValidation() {
         SanPham selectedProduct = (SanPham) cbProduct.getSelectedItem();
         String quantityText = tfQuantityOnHand.getText().trim();
-        String location = tfLocation.getText().trim();
 
         if (selectedProduct == null) {
             JOptionPane.showMessageDialog(this,
