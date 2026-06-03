@@ -1,7 +1,6 @@
 package com.shopapp.ui.themes;
 
 import java.awt.Color;
-import java.awt.Font;
 
 public enum Theme {
     DARK(

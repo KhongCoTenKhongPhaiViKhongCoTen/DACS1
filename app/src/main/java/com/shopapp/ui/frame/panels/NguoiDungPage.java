@@ -17,7 +17,6 @@ import com.shopapp.service.impl.VaitroServiceImpl;
 import com.shopapp.ui.components.BasePage;
 import com.shopapp.ui.frame.panels.Dialog.NguoiDungDialog;
 import com.shopapp.ui.themes.Theme;
-import com.shopapp.ui.themes.ThemeManager;
 
 public class NguoiDungPage extends BasePage {
 

@@ -12,7 +12,6 @@ import com.shopapp.service.QuyenService;
 import com.shopapp.service.impl.QuyenServiceImpl;
 import com.shopapp.ui.components.BasePage;
 import com.shopapp.ui.frame.panels.Dialog.QuyenDialog;
-import com.shopapp.ui.themes.ThemeManager;
 
 public class QuyenPage extends BasePage {
 

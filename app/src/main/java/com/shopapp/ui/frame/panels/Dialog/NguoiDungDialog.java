@@ -14,8 +14,6 @@ import com.shopapp.service.NguoiDungService;
 import com.shopapp.service.VaitroService;
 import com.shopapp.ui.components.BaseForm;
 import com.shopapp.ui.components.BaseDialog;
-import com.shopapp.ui.themes.ThemeManager;
-
 /**
  * Dialog dùng chung cho việc Thêm mới và Chỉnh sửa Người dùng.
  * Hỗ trợ giao diện GridBagLayout, đồng bộ theme và kiểm tra dữ liệu đầu vào.

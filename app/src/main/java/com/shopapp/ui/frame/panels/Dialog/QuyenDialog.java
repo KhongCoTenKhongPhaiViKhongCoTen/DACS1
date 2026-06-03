@@ -9,8 +9,6 @@ import com.shopapp.entity.Quyen;
 import com.shopapp.service.QuyenService;
 import com.shopapp.ui.components.BaseForm;
 import com.shopapp.ui.components.BaseDialog;
-import com.shopapp.ui.themes.ThemeManager;
-
 /**
  * Dialog dùng chung cho việc Thêm mới và Chỉnh sửa Quyền.
  * Hỗ trợ giao diện GridBagLayout, đồng bộ theme và kiểm tra dữ liệu đầu vào.
