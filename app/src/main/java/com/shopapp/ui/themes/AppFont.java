@@ -8,11 +8,10 @@ import java.awt.Font;
  */
 public class AppFont {
 
-    // Singleton Instance
     private static final AppFont instance = new AppFont();
 
     private AppFont() {
-    } // Chặn khởi tạo ngoài
+    }
 
     public static AppFont getInstance() {
         return instance;
