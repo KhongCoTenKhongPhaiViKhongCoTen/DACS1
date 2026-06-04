@@ -107,7 +107,7 @@ public class MainFrame extends JFrame
 
         add(contentPanel, BorderLayout.CENTER);
 
-        cardLayout.show(contentPanel, PageKey.DON_HANG);
+        cardLayout.show(contentPanel, PageKey.HOME);
 
         navbar.addPageChangeListener(this);
     }
