@@ -14,7 +14,6 @@ public class AppSys {
     private static final QuyenManager quyenManager = new QuyenManager();
     private NguoiDung nguoiDung = null;
 
-    // Kết nối trực tiếp tới gói themes thông qua Singleton
     public static final ThemeManager themes = ThemeManager.getInstance();
     public static final AppFont font = AppFont.getInstance();
 
