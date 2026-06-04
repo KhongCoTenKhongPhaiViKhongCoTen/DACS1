@@ -106,7 +106,6 @@ public class KhachHangPage extends BasePage {
     @Override
     protected void handleAdd() {
         KhachHangDialog dialog = new KhachHangDialog(getParentFrame(), null, getKhachHangService());
-        dialog.setVisible(true);
         if (dialog.isSucceeded()) {
             showTableData(true);
         }
@@ -132,7 +131,6 @@ public class KhachHangPage extends BasePage {
             }
 
             KhachHangDialog dialog = new KhachHangDialog(getParentFrame(), khachHang.get(), getKhachHangService());
-            dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(true);
             }

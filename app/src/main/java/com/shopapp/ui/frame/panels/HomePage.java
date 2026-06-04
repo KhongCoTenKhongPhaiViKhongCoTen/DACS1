@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 import com.shopapp.AppSys;
 import com.shopapp.entity.*;
@@ -97,28 +98,27 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
         // Header
         mainPanel.add(buildHeader());
-        mainPanel.add(Box.createVerticalStrut(16));
+        addVerticalStrut(mainPanel, 16);
 
         // KPI Cards (2 hàng × 3 cột)
         mainPanel.add(buildSectionLabel("Tổng quan"));
-        mainPanel.add(Box.createVerticalStrut(8));
+        addVerticalStrut(mainPanel, 8);
         mainPanel.add(buildKpiGrid());
-        mainPanel.add(Box.createVerticalStrut(20));
+        addVerticalStrut(mainPanel, 20);
 
         // Biểu đồ cột
         mainPanel.add(buildSectionLabel("Doanh thu 7 ngày qua"));
-        mainPanel.add(Box.createVerticalStrut(8));
+        addVerticalStrut(mainPanel, 8);
         barChartPanel = new BarChartPanel();
         barChartPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        barChartPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
         mainPanel.add(barChartPanel);
-        mainPanel.add(Box.createVerticalStrut(20));
+        addVerticalStrut(mainPanel, 20);
 
         // Bảng bán chạy + Cảnh báo tồn kho (2 cột)
         mainPanel.add(buildSectionLabel("Sản phẩm & Tồn kho"));
-        mainPanel.add(Box.createVerticalStrut(8));
+        addVerticalStrut(mainPanel, 8);
         mainPanel.add(buildBottomRow());
-        mainPanel.add(Box.createVerticalStrut(12));
+        addVerticalStrut(mainPanel, 12);
 
         // Dòng cập nhật cuối
         lblLastUpdate = new JLabel("Cập nhật lúc: --");
@@ -129,7 +129,16 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         JScrollPane scroll = new JScrollPane(mainPanel);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
+        scroll.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
         add(scroll, BorderLayout.CENTER);
+    }
+
+    private void addVerticalStrut(JPanel panel, int height) {
+        Component strut = Box.createVerticalStrut(height);
+        if (strut instanceof JComponent) {
+            ((JComponent) strut).setAlignmentX(Component.LEFT_ALIGNMENT);
+        }
+        panel.add(strut);
     }
 
     // ── Header ────────────────────────────────────────────────────────────────
@@ -275,7 +284,6 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         private int hoveredBar = -1;
 
         BarChartPanel() {
-            setPreferredSize(new Dimension(600, 150));
             setOpaque(false);
             addMouseMotionListener(new MouseMotionAdapter() {
                 @Override
@@ -294,6 +302,21 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
                     repaint();
                 }
             });
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            return new Dimension(600, 150);
+        }
+
+        @Override
+        public Dimension getMinimumSize() {
+            return new Dimension(200, 150);
+        }
+
+        @Override
+        public Dimension getMaximumSize() {
+            return new Dimension(Integer.MAX_VALUE, 160);
         }
 
         void setData(String[] labels, long[] values) {
@@ -432,6 +455,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
         JScrollPane sp = new JScrollPane(tblTopProducts);
         sp.setBorder(null);
+        sp.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
         tableCard.add(sp, BorderLayout.CENTER);
 
         // --- Panel cảnh báo tồn kho ---
@@ -452,6 +476,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         alertScroll.setBorder(null);
         alertScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         alertScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        alertScroll.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
         alertCard.add(alertScroll, BorderLayout.CENTER);
 
         row.add(tableCard);
@@ -518,10 +543,15 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
             List<SanPham> topSP = null;
             long[] chartData = new long[7];
             boolean demoMode = false;
+            List<Object[]> topProductsRows = null;
+            List<String[]> alertList = null;
 
             @Override
             protected Void doInBackground() {
                 try {
+                    // Fail early if database session factory is broken (e.g. offline)
+                    com.shopapp.util.HibernateUtil.getSessionFactory();
+
                     if (donHangService == null) {
                         demoMode = true;
                         return null;
@@ -559,99 +589,111 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
                         chartData[6 - i] = dayTotal;
                     }
 
-                } catch (Exception e) {
+                    // Fetch table data in background thread
+                    topProductsRows = new ArrayList<>();
+                    if (topSP != null) {
+                        int count = 0;
+                        for (SanPham sp : topSP) {
+                            if (count++ >= 6)
+                                break;
+                            String status = "Còn hàng";
+                            String quantity = "—";
+                            if (tonKhoService != null) {
+                                Optional<TonKho> tonKhoOpt = tonKhoService.findByProduct(sp);
+                                if (tonKhoOpt.isPresent()) {
+                                    TonKho tonKho = tonKhoOpt.get();
+                                    quantity = String.valueOf(tonKho.getQuantityOnHand());
+                                    if (tonKho.getQuantityOnHand() <= 0) {
+                                        status = "Hết hàng";
+                                    } else if (tonKho.getQuantityOnHand() < 15) {
+                                        status = "Sắp hết";
+                                    } else {
+                                        status = "Còn hàng";
+                                    }
+                                }
+                            }
+                            topProductsRows.add(new Object[] {
+                                    sp.getProductName(), "—", quantity, status
+                            });
+                        }
+                    }
+
+                    // Fetch alerts in background thread
+                    alertList = new ArrayList<>();
+                    if (tonKhoService != null) {
+                        List<TonKho> tonKhoList = tonKhoService.findAll();
+                        for (TonKho tk : tonKhoList) {
+                            int qty = tk.getQuantityOnHand();
+                            if (qty < 15) {
+                                String icon = qty <= 0 ? "⛔" : "🟠";
+                                String detail = qty <= 0
+                                        ? "Hết hàng — cần nhập gấp"
+                                        : "Tồn kho: " + qty + " (dưới ngưỡng 15)";
+                                String productName = tk.getProduct() != null ? tk.getProduct().getProductName() : "Không rõ sản phẩm";
+                                alertList.add(new String[] { icon, productName, detail });
+                            }
+                        }
+                    }
+
+                } catch (Throwable t) {
                     demoMode = true;
-                    e.printStackTrace();
+                    t.printStackTrace();
                 }
                 return null;
             }
 
             @Override
             protected void done() {
-                if (demoMode) {
-                    loadDemoData();
-                    return;
-                }
-                // Cập nhật KPI
-                if (lblDoanhThuVal != null)
-                    lblDoanhThuVal.setText(formatCurrency(doanhThu));
-                if (lblDonHangVal != null)
-                    lblDonHangVal.setText(String.valueOf(soDon));
-                if (lblKhachMoiVal != null)
-                    lblKhachMoiVal.setText(String.valueOf(khachMoi));
-                if (lblTBDonVal != null)
-                    lblTBDonVal.setText(formatCurrency(tbDon));
-
-                // Biểu đồ
-                String[] dayLabels = { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
-                if (barChartPanel != null)
-                    barChartPanel.setData(dayLabels, chartData);
-
-                // Bảng top sản phẩm
-                tableModel.setRowCount(0);
-                if (topSP != null) {
-                    int count = 0;
-                    for (SanPham sp : topSP) {
-                        if (count++ >= 6)
-                            break;
-                        // Lấy thông tin tồn kho
-                        String status = "Còn hàng";
-                        String quantity = "—";
-                        if (tonKhoService != null) {
-                            Optional<TonKho> tonKhoOpt = tonKhoService.findByProduct(sp);
-                            if (tonKhoOpt.isPresent()) {
-                                TonKho tonKho = tonKhoOpt.get();
-                                quantity = String.valueOf(tonKho.getQuantityOnHand());
-                                if (tonKho.getQuantityOnHand() <= 0) {
-                                    status = "Hết hàng";
-                                } else if (tonKho.getQuantityOnHand() < 15) { // Ngưỡng cảnh báo
-                                    status = "Sắp hết";
-                                } else {
-                                    status = "Còn hàng";
-                                }
-                            }
-                        }
-                        tableModel.addRow(new Object[] {
-                                sp.getProductName(), "—", quantity, status
-                        });
+                try {
+                    if (demoMode) {
+                        loadDemoData();
+                        return;
                     }
-                }
+                    // Cập nhật KPI
+                    if (lblDoanhThuVal != null)
+                        lblDoanhThuVal.setText(formatCurrency(doanhThu));
+                    if (lblDonHangVal != null)
+                        lblDonHangVal.setText(String.valueOf(soDon));
+                    if (lblKhachMoiVal != null)
+                        lblKhachMoiVal.setText(String.valueOf(khachMoi));
+                    if (lblTBDonVal != null)
+                        lblTBDonVal.setText(formatCurrency(tbDon));
 
-                // Cập nhật cảnh báo tồn kho thấp
-                alertPanel.removeAll();
-                if (tonKhoService != null) {
-                    List<TonKho> tonKhoList = tonKhoService.findAll();
-                    for (TonKho tk : tonKhoList) {
-                        int qty = tk.getQuantityOnHand();
-                        // Ngưỡng cảnh báo: dưới 15 là sắp hết, dưới 0 là hết hàng (nếu cho âm)
-                        if (qty < 15) {
-                            String icon = qty <= 0 ? "⛔" : "🟠";
-                            String detail = qty <= 0
-                                    ? "Hết hàng — cần nhập gấp"
-                                    : "Tồn kho: " + qty + " (dưới ngưỡng 15)";
-                            alertPanel.add(buildAlertRow(icon, tk.getProduct().getProductName(), detail));
+                    // Biểu đồ
+                    String[] dayLabels = { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
+                    if (barChartPanel != null)
+                        barChartPanel.setData(dayLabels, chartData);
+
+                    // Bảng top sản phẩm
+                    tableModel.setRowCount(0);
+                    if (topProductsRows != null) {
+                        for (Object[] r : topProductsRows) {
+                            tableModel.addRow(r);
+                        }
+                    }
+
+                    // Cập nhật cảnh báo tồn kho thấp
+                    alertPanel.removeAll();
+                    if (alertList != null) {
+                        for (String[] a : alertList) {
+                            alertPanel.add(buildAlertRow(a[0], a[1], a[2]));
                             alertPanel.add(Box.createVerticalStrut(6));
                         }
                     }
-                } else {
-                    // Demo data
-                    String[][] alerts = {
-                            { "⛔", "Áo khoác bomber", "Hết hàng — cần nhập gấp" },
-                            { "🔴", "Váy hoa mùa hè", "Tồn kho: 12 (dưới ngưỡng 15)" },
-                            { "🔴", "Áo polo nam basic", "Tồn kho: 48 (dưới ngưỡng 50)" }, // Note: This will not show in alert as 48 >= 15
-                    };
-                    for (String[] a : alerts) {
-                        alertPanel.add(buildAlertRow(a[0], a[1], a[2]));
-                        alertPanel.add(Box.createVerticalStrut(6));
-                    }
-                }
-                alertPanel.revalidate();
-                alertPanel.repaint();
+                    alertPanel.revalidate();
+                    alertPanel.repaint();
 
-                // Cập nhật thời gian
-                if (lblLastUpdate != null)
-                    lblLastUpdate.setText("Cập nhật lúc: " +
-                            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")));
+                    // Cập nhật thời gian
+                    if (lblLastUpdate != null)
+                        lblLastUpdate.setText("Cập nhật lúc: " +
+                                LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")));
+
+                    HomePage.this.revalidate();
+                    HomePage.this.repaint();
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                    loadDemoData();
+                }
             }
         };
         worker.execute();
@@ -707,6 +749,9 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
         if (lblLastUpdate != null)
             lblLastUpdate.setText("Dữ liệu mẫu — Kết nối DB để xem dữ liệu thực");
+
+        HomePage.this.revalidate();
+        HomePage.this.repaint();
     }
 
     private JPanel buildAlertRow(String icon, String name, String detail) {

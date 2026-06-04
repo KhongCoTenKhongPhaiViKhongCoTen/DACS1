@@ -40,7 +40,7 @@ public class NhaCungCapDialog extends BaseDialog {
             Frame owner,
             NhaCungCap nhaCungCap,
             NhaCungCapService nhaCungCapService) {
-        super(owner, nhaCungCap == null ? "Thêm Nha Cung Cap Mới" : "Cập Nhật Thông Tin Nha Cung Cap");
+        super(owner, nhaCungCap == null ? "Thêm Nhà Cung Cấp Mới" : "Cập Nhật Thông Tin Nhà Cung Cấp");
 
         // Assign fields TRƯỚC khi gọi buildAndShow()
         this.nhaCungCap = nhaCungCap;

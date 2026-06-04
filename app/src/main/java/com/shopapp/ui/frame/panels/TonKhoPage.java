@@ -143,7 +143,6 @@ public class TonKhoPage extends BasePage {
     @Override
     protected void handleAdd() {
         TonKhoDialog dialog = new TonKhoDialog(getParentFrame(), null, getTonKhoService());
-        dialog.setVisible(true);
         if (dialog.isSucceeded()) {
             showTableData(true);
         }
@@ -169,7 +168,6 @@ public class TonKhoPage extends BasePage {
             }
 
             TonKhoDialog dialog = new TonKhoDialog(getParentFrame(), tonKho.get(), getTonKhoService());
-            dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(true);
             }

@@ -11,6 +11,7 @@ import com.shopapp.service.VaitroService;
 import com.shopapp.service.impl.VaitroServiceImpl;
 import com.shopapp.ui.components.BasePage;
 import com.shopapp.ui.frame.panels.Dialog.VaiTroDialog;
+import com.shopapp.ui.frame.panels.Dialog.ChangeRolePermissionDialog;
 import com.shopapp.AppSys;
 
 public class VaiTroPage extends BasePage {
@@ -46,11 +47,6 @@ public class VaiTroPage extends BasePage {
 
     @Override
     protected void addCustomFilters() {
-        // Description filter
-        JLabel lblDescription = new JLabel("Mô tả chứa:");
-        lblDescription.setFont(AppSys.themes.getFont(12));
-
-        filterPanel.add(lblDescription);
     }
 
     @Override
@@ -98,7 +94,6 @@ public class VaiTroPage extends BasePage {
     @Override
     protected void handleAdd() {
         VaiTroDialog dialog = new VaiTroDialog(getParentFrame(), null, getRoleService());
-        dialog.setVisible(true);
         if (dialog.isSucceeded()) {
             showTableData(true);
         }
@@ -125,7 +120,6 @@ public class VaiTroPage extends BasePage {
             }
 
             VaiTroDialog dialog = new VaiTroDialog(getParentFrame(), role.get(), getRoleService());
-            dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(true);
             }
@@ -193,9 +187,25 @@ public class VaiTroPage extends BasePage {
             return;
         }
 
-        // TODO: mở dialog phân quyền cho vai trò selectedId
-        JOptionPane.showMessageDialog(this,
-                "Chức năng phân quyền đang được phát triển.",
-                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        try {
+            Optional<Vaitro> roleOpt = getRoleService().findById(selectedId);
+            if (roleOpt.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Không tìm thấy vai trò được chọn.",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            ChangeRolePermissionDialog dialog = new ChangeRolePermissionDialog(
+                    getParentFrame(), roleOpt.get());
+            if (dialog.isSucceeded()) {
+                showTableData(false);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi mở phân quyền: " + ex.getMessage(),
+                    "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
     }
 }

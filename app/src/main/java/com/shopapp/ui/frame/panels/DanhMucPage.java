@@ -46,11 +46,7 @@ public class DanhMucPage extends BasePage {
 
     @Override
     protected void addCustomFilters() {
-        // Filter by description
-        JLabel lblDescription = new JLabel("Mô tả chứa:");
-        lblDescription.setFont(AppSys.themes.getFont(12));
 
-        filterPanel.add(lblDescription);
     }
 
     @Override
@@ -98,7 +94,6 @@ public class DanhMucPage extends BasePage {
     @Override
     protected void handleAdd() {
         DanhMucDialog dialog = new DanhMucDialog(getParentFrame(), null, getDanhMucService());
-        dialog.setVisible(true);
         if (dialog.isSucceeded()) {
             showTableData(true);
         }
@@ -124,7 +119,6 @@ public class DanhMucPage extends BasePage {
             }
 
             DanhMucDialog dialog = new DanhMucDialog(getParentFrame(), danhMuc.get(), getDanhMucService());
-            dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(true);
             }

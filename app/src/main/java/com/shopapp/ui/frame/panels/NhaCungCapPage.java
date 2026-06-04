@@ -10,7 +10,6 @@ import com.shopapp.service.NhaCungCapService;
 import com.shopapp.service.impl.NhaCungCapServiceImpl;
 import com.shopapp.ui.components.BasePage;
 import com.shopapp.ui.frame.panels.Dialog.NhaCungCapDialog;
-import com.shopapp.AppSys;
 
 public class NhaCungCapPage extends BasePage {
 
@@ -98,7 +97,6 @@ public class NhaCungCapPage extends BasePage {
     @Override
     protected void handleAdd() {
         NhaCungCapDialog dialog = new NhaCungCapDialog(getParentFrame(), null, getNhaCungCapService());
-        dialog.setVisible(true);
         if (dialog.isSucceeded()) {
             showTableData(true);
         }
@@ -124,7 +122,6 @@ public class NhaCungCapPage extends BasePage {
             }
 
             NhaCungCapDialog dialog = new NhaCungCapDialog(getParentFrame(), nhaCungCap.get(), getNhaCungCapService());
-            dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(true);
             }

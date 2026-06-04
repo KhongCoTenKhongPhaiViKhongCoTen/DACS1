@@ -106,7 +106,6 @@ public class DonHangPage extends BasePage {
     @Override
     protected void handleAdd() {
         DonHangDialog dialog = new DonHangDialog(getParentFrame(), null, getDonHangService());
-        dialog.setVisible(true);
         if (dialog.isSucceeded()) {
             showTableData(true);
         }
@@ -132,7 +131,6 @@ public class DonHangPage extends BasePage {
             }
 
             DonHangDialog dialog = new DonHangDialog(getParentFrame(), donHang.get(), getDonHangService());
-            dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(true);
             }

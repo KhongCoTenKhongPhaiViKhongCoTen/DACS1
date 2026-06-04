@@ -180,7 +180,6 @@ public class NguoiDungPage extends BasePage {
                 null,
                 getUserService(),
                 getRoleService());
-        dialog.setVisible(true);
         if (dialog.isSucceeded()) {
             showTableData(false);
         }
@@ -209,7 +208,6 @@ public class NguoiDungPage extends BasePage {
                     user,
                     getUserService(),
                     getRoleService());
-            dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(false);
             }

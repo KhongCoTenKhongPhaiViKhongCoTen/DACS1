@@ -149,7 +149,6 @@ public class QuyenPage extends BasePage {
                     (Frame) SwingUtilities.getWindowAncestor(this),
                     optional.get(),
                     getQuyenService());
-            dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(false);
             }

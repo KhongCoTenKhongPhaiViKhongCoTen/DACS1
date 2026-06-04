@@ -1,12 +1,9 @@
 package com.shopapp.ui.frame.panels;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import javax.swing.*;
-import javax.swing.SpinnerDateModel;
 import com.shopapp.entity.DanhMuc;
 import com.shopapp.entity.NhaCungCap;
 import com.shopapp.entity.SanPham;
@@ -220,7 +217,6 @@ public class SanPhamPage extends BasePage {
     @Override
     protected void handleAdd() {
         SanPhamDialog dialog = new SanPhamDialog(getParentFrame(), null, getSanPhamService());
-        dialog.setVisible(true);
         if (dialog.isSucceeded()) {
             showTableData(true);
         }
@@ -246,7 +242,6 @@ public class SanPhamPage extends BasePage {
             }
 
             SanPhamDialog dialog = new SanPhamDialog(getParentFrame(), sanPham.get(), getSanPhamService());
-            dialog.setVisible(true);
             if (dialog.isSucceeded()) {
                 showTableData(true);
             }
