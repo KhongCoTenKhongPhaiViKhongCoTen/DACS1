@@ -5,9 +5,12 @@ import com.shopapp.ui.themes.AppFont;
 import com.shopapp.ui.themes.ThemeManager;
 import com.shopapp.util.QuyenManager;
 
+/**
+ * class này chứa các biến toàn cục, các hằng số của ứng dụng
+ */
 public class AppSys {
     private static final AppSys Self = new AppSys();
-    
+
     private static final QuyenManager quyenManager = new QuyenManager();
     private NguoiDung nguoiDung = null;
 
@@ -18,18 +21,17 @@ public class AppSys {
     private AppSys() {
     }
 
-    
     public static void setNguoiDung(NguoiDung nguoiDung) {
         Self.nguoiDung = nguoiDung;
         quyenManager.update(nguoiDung == null ? null : nguoiDung.getPermissions());
     }
-    
+
     public static NguoiDung getNguoiDung() {
         return Self.nguoiDung;
     }
-    
+
     public static QuyenManager quyen() {
         return quyenManager;
     }
-    
+
 }
