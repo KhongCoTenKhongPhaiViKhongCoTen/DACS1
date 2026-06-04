@@ -11,8 +11,10 @@ import com.shopapp.service.VaitroService;
 import com.shopapp.service.impl.VaitroServiceImpl;
 import com.shopapp.ui.components.BasePage;
 import com.shopapp.ui.frame.panels.Dialog.VaiTroDialog;
+import com.shopapp.AppSys;
 
 public class VaiTroPage extends BasePage {
+
 
     private VaitroService roleService;
     private JButton changeRole; // khởi tạo trong addCustomButtons()
@@ -44,7 +46,11 @@ public class VaiTroPage extends BasePage {
 
     @Override
     protected void addCustomFilters() {
-        // Không có filter tùy chỉnh
+        // Description filter
+        JLabel lblDescription = new JLabel("Mô tả chứa:");
+        lblDescription.setFont(AppSys.themes.getFont(12));
+
+        filterPanel.add(lblDescription);
     }
 
     @Override
@@ -55,12 +61,15 @@ public class VaiTroPage extends BasePage {
             String searchQuery = tfSearch.getText().trim().toLowerCase();
 
             for (Vaitro vaitro : roles) {
-                if (applyFilters && !searchQuery.isEmpty()) {
-                    String idStr = String.valueOf(vaitro.getRoleId());
-                    String nameStr = vaitro.getRoleName().toLowerCase();
+                if (applyFilters) {
+                    // Apply global search (ID, Name)
+                    if (!searchQuery.isEmpty()) {
+                        String idStr = String.valueOf(vaitro.getRoleId());
+                        String nameStr = vaitro.getRoleName().toLowerCase();
 
-                    if (!idStr.contains(searchQuery) && !nameStr.contains(searchQuery)) {
-                        continue;
+                        if (!idStr.contains(searchQuery) && !nameStr.contains(searchQuery)) {
+                            continue;
+                        }
                     }
                 }
 

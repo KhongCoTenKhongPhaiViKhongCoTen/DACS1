@@ -10,8 +10,10 @@ import com.shopapp.service.NhaCungCapService;
 import com.shopapp.service.impl.NhaCungCapServiceImpl;
 import com.shopapp.ui.components.BasePage;
 import com.shopapp.ui.frame.panels.Dialog.NhaCungCapDialog;
+import com.shopapp.AppSys;
 
 public class NhaCungCapPage extends BasePage {
+
 
     private NhaCungCapService nhaCungCapService;
 
@@ -35,6 +37,7 @@ public class NhaCungCapPage extends BasePage {
         return nhaCungCapService;
     }
 
+
     // ── Lấy Frame cha ─────────────────────────────────────────────────────────
 
     private JFrame getParentFrame() {
@@ -45,7 +48,7 @@ public class NhaCungCapPage extends BasePage {
 
     @Override
     protected void addCustomFilters() {
-        // Không có filter tùy chỉnh
+        // No custom filters needed - using base search functionality
     }
 
     @Override
@@ -60,8 +63,9 @@ public class NhaCungCapPage extends BasePage {
                     String idStr = String.valueOf(nhaCungCap.getSupplierId());
                     String nameStr = nhaCungCap.getCompanyName() != null ? nhaCungCap.getCompanyName().toLowerCase() : "";
                     String contactStr = nhaCungCap.getContactName() != null ? nhaCungCap.getContactName().toLowerCase() : "";
+                    String emailStr = nhaCungCap.getEmail() != null ? nhaCungCap.getEmail().toLowerCase() : "";
 
-                    if (!idStr.contains(searchQuery) && !nameStr.contains(searchQuery) && !contactStr.contains(searchQuery)) {
+                    if (!idStr.contains(searchQuery) && !nameStr.contains(searchQuery) && !contactStr.contains(searchQuery) && !emailStr.contains(searchQuery)) {
                         continue;
                     }
                 }

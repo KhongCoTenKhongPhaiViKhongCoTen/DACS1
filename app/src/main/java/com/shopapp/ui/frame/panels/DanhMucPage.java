@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.swing.*;
+
+import com.shopapp.AppSys;
 import com.shopapp.entity.DanhMuc;
 import com.shopapp.repository.impl.DanhMucRepositoryImpl;
 import com.shopapp.service.DanhMucService;
@@ -13,7 +15,9 @@ import com.shopapp.ui.frame.panels.Dialog.DanhMucDialog;
 
 public class DanhMucPage extends BasePage {
 
+
     private DanhMucService danhMucService;
+
 
     public DanhMucPage() {
         super(new String[] {
@@ -42,7 +46,11 @@ public class DanhMucPage extends BasePage {
 
     @Override
     protected void addCustomFilters() {
-        // Không có filter tùy chỉnh
+        // Filter by description
+        JLabel lblDescription = new JLabel("Mô tả chứa:");
+        lblDescription.setFont(AppSys.themes.getFont(12));
+
+        filterPanel.add(lblDescription);
     }
 
     @Override
@@ -53,12 +61,15 @@ public class DanhMucPage extends BasePage {
             String searchQuery = tfSearch.getText().trim().toLowerCase();
 
             for (DanhMuc danhMuc : danhMucList) {
-                if (applyFilters && !searchQuery.isEmpty()) {
-                    String idStr = String.valueOf(danhMuc.getCategoryId());
-                    String nameStr = danhMuc.getCategoryName() != null ? danhMuc.getCategoryName().toLowerCase() : "";
+                if (applyFilters) {
+                    // Apply global search (ID, Name)
+                    if (!searchQuery.isEmpty()) {
+                        String idStr = String.valueOf(danhMuc.getCategoryId());
+                        String nameStr = danhMuc.getCategoryName() != null ? danhMuc.getCategoryName().toLowerCase() : "";
 
-                    if (!idStr.contains(searchQuery) && !nameStr.contains(searchQuery)) {
-                        continue;
+                        if (!idStr.contains(searchQuery) && !nameStr.contains(searchQuery)) {
+                            continue;
+                        }
                     }
                 }
 

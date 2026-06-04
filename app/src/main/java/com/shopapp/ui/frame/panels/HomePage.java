@@ -7,12 +7,14 @@ import java.awt.event.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import com.shopapp.AppSys;
 import com.shopapp.entity.*;
 import com.shopapp.repository.impl.*;
 import com.shopapp.service.*;
 import com.shopapp.service.impl.*;
+import com.shopapp.entity.TonKho;
 import com.shopapp.ui.themes.*;
 
 /**
@@ -25,6 +27,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
     private DonHangService donHangService;
     private SanPhamService sanPhamService;
     private KhachHangService khachHangService;
+    private TonKhoService tonKhoService;
 
     // ── KPI Labels ────────────────────────────────────────────────────────────
     private JLabel lblDoanhThuVal;
@@ -72,11 +75,13 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
             donHangService = new DonHangServiceImpl(new DonHangRepositoryImpl());
             sanPhamService = new SanPhamServiceImpl(new SanPhamRepositoryImpl());
             khachHangService = new KhachHangServiceImpl(new KhachHangRepositoryImpl());
+            tonKhoService = new TonKhoServiceImpl(new TonKhoRepositoryImpl());
         } catch (Exception e) {
             // DB chưa cấu hình, chạy ở chế độ demo
             donHangService = null;
             sanPhamService = null;
             khachHangService = null;
+            tonKhoService = null;
         }
     }
 
@@ -154,7 +159,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         textBlock.add(lblSubtitle);
 
         // Nút làm mới thủ công
-        JButton btnRefresh = new JButton("⟳  Làm mới");
+        JButton btnRefresh = new JButton("Làm mới");
         btnRefresh.setFont(AppSys.themes.getFont(12));
         btnRefresh.setFocusPainted(false);
         btnRefresh.addActionListener(e -> loadData());
@@ -404,7 +409,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         JPanel tableCard = buildCard();
         tableCard.setLayout(new BorderLayout(0, 8));
 
-        JLabel tblTitle = new JLabel("🏆  Sản phẩm bán chạy");
+        JLabel tblTitle = new JLabel("Sản phẩm bán chạy");
         tblTitle.setFont(AppSys.themes.getBoldFont(12));
         tableCard.add(tblTitle, BorderLayout.NORTH);
 
@@ -433,7 +438,7 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         JPanel alertCard = buildCard();
         alertCard.setLayout(new BorderLayout(0, 8));
 
-        JLabel alertTitle = new JLabel("⚠️  Cảnh báo tồn kho thấp");
+        JLabel alertTitle = new JLabel("Cảnh báo tồn kho thấp");
         alertTitle.setFont(AppSys.themes.getBoldFont(12));
         alertCard.add(alertTitle, BorderLayout.NORTH);
 
@@ -589,12 +594,59 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
                     for (SanPham sp : topSP) {
                         if (count++ >= 6)
                             break;
-                        String status = "Còn hàng"; // Cần join với TonKho
+                        // Lấy thông tin tồn kho
+                        String status = "Còn hàng";
+                        String quantity = "—";
+                        if (tonKhoService != null) {
+                            Optional<TonKho> tonKhoOpt = tonKhoService.findByProduct(sp);
+                            if (tonKhoOpt.isPresent()) {
+                                TonKho tonKho = tonKhoOpt.get();
+                                quantity = String.valueOf(tonKho.getQuantityOnHand());
+                                if (tonKho.getQuantityOnHand() <= 0) {
+                                    status = "Hết hàng";
+                                } else if (tonKho.getQuantityOnHand() < 15) { // Ngưỡng cảnh báo
+                                    status = "Sắp hết";
+                                } else {
+                                    status = "Còn hàng";
+                                }
+                            }
+                        }
                         tableModel.addRow(new Object[] {
-                                sp.getProductName(), "—", "—", status
+                                sp.getProductName(), "—", quantity, status
                         });
                     }
                 }
+
+                // Cập nhật cảnh báo tồn kho thấp
+                alertPanel.removeAll();
+                if (tonKhoService != null) {
+                    List<TonKho> tonKhoList = tonKhoService.findAll();
+                    for (TonKho tk : tonKhoList) {
+                        int qty = tk.getQuantityOnHand();
+                        // Ngưỡng cảnh báo: dưới 15 là sắp hết, dưới 0 là hết hàng (nếu cho âm)
+                        if (qty < 15) {
+                            String icon = qty <= 0 ? "⛔" : "🟠";
+                            String detail = qty <= 0
+                                    ? "Hết hàng — cần nhập gấp"
+                                    : "Tồn kho: " + qty + " (dưới ngưỡng 15)";
+                            alertPanel.add(buildAlertRow(icon, tk.getProduct().getProductName(), detail));
+                            alertPanel.add(Box.createVerticalStrut(6));
+                        }
+                    }
+                } else {
+                    // Demo data
+                    String[][] alerts = {
+                            { "⛔", "Áo khoác bomber", "Hết hàng — cần nhập gấp" },
+                            { "🔴", "Váy hoa mùa hè", "Tồn kho: 12 (dưới ngưỡng 15)" },
+                            { "🔴", "Áo polo nam basic", "Tồn kho: 48 (dưới ngưỡng 50)" }, // Note: This will not show in alert as 48 >= 15
+                    };
+                    for (String[] a : alerts) {
+                        alertPanel.add(buildAlertRow(a[0], a[1], a[2]));
+                        alertPanel.add(Box.createVerticalStrut(6));
+                    }
+                }
+                alertPanel.revalidate();
+                alertPanel.repaint();
 
                 // Cập nhật thời gian
                 if (lblLastUpdate != null)
@@ -643,8 +695,8 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         alertPanel.removeAll();
         String[][] alerts = {
                 { "⛔", "Áo khoác bomber", "Hết hàng — cần nhập gấp" },
-                { "🔴", "Váy hoa mùa hè", "Tồn kho: 12 (dưới ngưỡng 15)" },
-                { "🟠", "Áo polo nam basic", "Tồn kho: 48 (dưới ngưỡng 50)" },
+                { "🟠", "Váy hoa mùa hè", "Tồn kho: 12 (dưới ngưỡng 15)" },
+                { "🟠", "Áo thun oversize", "Tồn kho: 8 (dưới ngưỡng 15)" },
         };
         for (String[] a : alerts) {
             alertPanel.add(buildAlertRow(a[0], a[1], a[2]));

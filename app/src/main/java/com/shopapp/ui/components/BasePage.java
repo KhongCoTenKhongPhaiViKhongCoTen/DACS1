@@ -14,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 
 import com.shopapp.AppSys;
 import com.shopapp.ui.themes.Theme;
-import com.shopapp.ui.themes.ThemeManager;
 import com.shopapp.ui.themes.ThemeManager.ThemeChangeListener;
 
 /**

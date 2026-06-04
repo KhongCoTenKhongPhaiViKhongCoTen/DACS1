@@ -293,8 +293,8 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
     }
 
     private void styleNavButton(JButton btn, boolean isSubButton) {
-        btn.setFont(AppSys.themes.getFont(isSubButton ? 13 : 14));
-        btn.setForeground(isSubButton ? theme.textSecondary : theme.textPrimary);
+        btn.setFont(AppSys.themes.getFont(isSubButton ? 12 : 14));
+        btn.setForeground(theme.textPrimary);
         btn.setBorder(new EmptyBorder(12, 18, 12, 18));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -320,11 +320,13 @@ public class NavBar extends JPanel implements ThemeManager.ThemeChangeListener {
 
     private void selectButton(JButton btn, String pageKey) {
         if (currentSelectedButton != null) {
+            currentSelectedButton.setOpaque(false); // ← thêm dòng này
             currentSelectedButton.setContentAreaFilled(false);
         }
 
         currentSelectedButton = btn;
         btn.setBackground(theme.accent);
+        btn.setOpaque(true); // ← thêm dòng này
         btn.setContentAreaFilled(true);
 
         notifyPageChange(pageKey);
