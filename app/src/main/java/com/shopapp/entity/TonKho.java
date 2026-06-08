@@ -41,7 +41,7 @@ public class TonKho {
         this.product = product;
     }
 
-    public Integer getQuantityOnHand() {
+    public Integer getSoLuongTonKho() {
         return quantityOnHand;
     }
 

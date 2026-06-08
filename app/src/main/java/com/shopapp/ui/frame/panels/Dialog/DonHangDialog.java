@@ -22,13 +22,6 @@ import com.shopapp.service.impl.NguoiDungServiceImpl;
 import com.shopapp.ui.components.BaseForm;
 import com.shopapp.ui.components.BaseDialog;
 
-/**
- * Dialog dùng chung cho việc Thêm mới và Chỉnh sửa Đơn hàng.
- * Hỗ trợ giao diện GridBagLayout, đồng bộ theme và kiểm tra dữ liệu đầu vào.
- *
- * ⚠️ Lưu ý: gọi buildAndShow() ở cuối constructor SAU KHI assign hết fields,
- * theo yêu cầu của BaseDialog.
- */
 public class DonHangDialog extends BaseDialog {
 
     // ── Services & entity ─────────────────────────────────────────────────────
@@ -42,18 +35,21 @@ public class DonHangDialog extends BaseDialog {
     private JComboBox<KhachHang> cbCustomer;
     private JComboBox<NguoiDung> cbUser;
     private JTextField tfOrderDate;
-    private JTextField tfStatus;
+    private JComboBox<String> cbStatus;
     private JTextField tfSubtotal;
     private JTextField tfTaxAmount;
     private JTextField tfDiscountAmount;
     private JTextField tfTotalAmount;
     private JTextArea taNotes;
 
+    // Danh sách trạng thái mẫu đơn hàng
+    private final String[] STATUS_OPTIONS = { "Chờ xử lý", "Đang xử lý", "Đã thanh toán", "Đã giao", "Đã hủy" };
+
     // ── Constructor ───────────────────────────────────────────────────────────
 
     /**
-     * @param owner       Cửa sổ cha
-     * @param donHang     null = Thêm mới, khác null = Sửa thông tin
+     * @param owner          Cửa sổ cha
+     * @param donHang        null = Thêm mới, khác null = Sửa thông tin
      * @param donHangService Service xử lý DonHang
      */
     public DonHangDialog(
@@ -72,11 +68,6 @@ public class DonHangDialog extends BaseDialog {
         buildAndShow();
     }
 
-    // ── Tạo form ──────────────────────────────────────────────────────────
-    /**
-     * Tạo các component form. Lúc này tất cả fields (donHang, donHangService, ...)
-     * đã được assign nên có thể dùng trực tiếp.
-     */
     @Override
     protected JPanel createForm() {
         BaseForm form = new BaseForm();
@@ -92,7 +83,11 @@ public class DonHangDialog extends BaseDialog {
 
         tfOrderNumber = createTextField();
         tfOrderDate = createTextField();
-        tfStatus = createTextField();
+
+        // Khởi tạo JComboBox cho Status
+        cbStatus = new JComboBox<>(STATUS_OPTIONS);
+        cbStatus.setFont(AppSys.themes.getFont(FONT_FIELD));
+
         tfSubtotal = createTextField();
         tfTaxAmount = createTextField();
         tfDiscountAmount = createTextField();
@@ -107,7 +102,7 @@ public class DonHangDialog extends BaseDialog {
         form.addRow(new JLabel("Khách hàng"), cbCustomer);
         form.addRow(new JLabel("Nhân viên"), cbUser);
         form.addRow(new JLabel("Ngày đặt"), tfOrderDate);
-        form.addRow(new JLabel("Trạng thái"), tfStatus);
+        form.addRow(new JLabel("Trạng thái"), cbStatus); // Truyền JComboBox vào đây
         form.addRow(new JLabel("Tổng tiền trước thuế"), tfSubtotal);
         form.addRow(new JLabel("Số tiền thuế"), tfTaxAmount);
         form.addRow(new JLabel("Số tiền giảm giá"), tfDiscountAmount);
@@ -117,18 +112,16 @@ public class DonHangDialog extends BaseDialog {
         return form;
     }
 
-    // ── Điền dữ liệu khi ở chế độ Sửa ───────────────────────────────────────
-
-    /**
-     * Điền dữ liệu entity vào form (nếu ở chế độ Sửa).
-     * Được gọi bởi buildAndShow() SAU createForm(), nên các fields đã tồn tại.
-     */
     @Override
     protected void fillData() {
         // Chế độ Thêm mới → không cần điền thêm
         if (donHang == null) {
-            // For new order, set orderDate to now (will be overridden by service on save, but we show current time for clarity)
+            // For new order, set orderDate to now
             tfOrderDate.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            // Thiết lập mặc định là lựa chọn đầu tiên cho đơn hàng mới
+            if (cbStatus.getItemCount() > 0) {
+                cbStatus.setSelectedIndex(0);
+            }
             return;
         }
 
@@ -136,12 +129,24 @@ public class DonHangDialog extends BaseDialog {
         tfOrderNumber.setText(donHang.getOrderNumber());
         cbCustomer.setSelectedItem(donHang.getCustomer());
         cbUser.setSelectedItem(donHang.getUser());
-        tfOrderDate.setText(donHang.getOrderDate() != null ? donHang.getOrderDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
-        tfStatus.setText(donHang.getStatus() != null ? donHang.getStatus() : "");
-        tfSubtotal.setText(donHang.getSubtotal() != null ? donHang.getSubtotal().stripTrailingZeros().toPlainString() : "");
-        tfTaxAmount.setText(donHang.getTaxAmount() != null ? donHang.getTaxAmount().stripTrailingZeros().toPlainString() : "");
-        tfDiscountAmount.setText(donHang.getDiscountAmount() != null ? donHang.getDiscountAmount().stripTrailingZeros().toPlainString() : "");
-        tfTotalAmount.setText(donHang.getTotalAmount() != null ? donHang.getTotalAmount().stripTrailingZeros().toPlainString() : "");
+        tfOrderDate.setText(donHang.getOrderDate() != null
+                ? donHang.getOrderDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                : "");
+
+        // Chọn giá trị tương ứng trong JComboBox
+        if (donHang.getStatus() != null) {
+            cbStatus.setSelectedItem(donHang.getStatus());
+        }
+
+        tfSubtotal.setText(
+                donHang.getSubtotal() != null ? donHang.getSubtotal().stripTrailingZeros().toPlainString() : "");
+        tfTaxAmount.setText(
+                donHang.getTaxAmount() != null ? donHang.getTaxAmount().stripTrailingZeros().toPlainString() : "");
+        tfDiscountAmount.setText(
+                donHang.getDiscountAmount() != null ? donHang.getDiscountAmount().stripTrailingZeros().toPlainString()
+                        : "");
+        tfTotalAmount.setText(
+                donHang.getTotalAmount() != null ? donHang.getTotalAmount().stripTrailingZeros().toPlainString() : "");
         taNotes.setText(donHang.getNotes() != null ? donHang.getNotes() : "");
     }
 
@@ -154,8 +159,10 @@ public class DonHangDialog extends BaseDialog {
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return false;
         }
-        if (tfStatus.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng điền trạng thái (*)",
+
+        // Kiểm tra xem JComboBox có chọn giá trị hợp lệ không
+        if (cbStatus.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn trạng thái (*)",
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return false;
         }
@@ -176,19 +183,25 @@ public class DonHangDialog extends BaseDialog {
         return true;
     }
 
-    // ── Xử lý lưu ────────────────────────────────────────────────────────
-
     @Override
     protected void handleSave() {
         String orderNumber = tfOrderNumber.getText().trim();
         KhachHang selectedCustomer = (KhachHang) cbCustomer.getSelectedItem();
         NguoiDung selectedUser = (NguoiDung) cbUser.getSelectedItem();
-        LocalDateTime orderDate = LocalDateTime.parse(tfOrderDate.getText().trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        String status = tfStatus.getText().trim();
-        BigDecimal subtotal = tfSubtotal.getText().trim().isEmpty() ? BigDecimal.ZERO : new BigDecimal(tfSubtotal.getText().trim());
-        BigDecimal taxAmount = tfTaxAmount.getText().trim().isEmpty() ? BigDecimal.ZERO : new BigDecimal(tfTaxAmount.getText().trim());
-        BigDecimal discountAmount = tfDiscountAmount.getText().trim().isEmpty() ? BigDecimal.ZERO : new BigDecimal(tfDiscountAmount.getText().trim());
-        BigDecimal totalAmount = tfTotalAmount.getText().trim().isEmpty() ? BigDecimal.ZERO : new BigDecimal(tfTotalAmount.getText().trim());
+        LocalDateTime orderDate = LocalDateTime.parse(tfOrderDate.getText().trim(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        // Lấy dữ liệu dạng String từ JComboBox
+        String status = cbStatus.getSelectedItem() != null ? cbStatus.getSelectedItem().toString() : "";
+
+        BigDecimal subtotal = tfSubtotal.getText().trim().isEmpty() ? BigDecimal.ZERO
+                : new BigDecimal(tfSubtotal.getText().trim());
+        BigDecimal taxAmount = tfTaxAmount.getText().trim().isEmpty() ? BigDecimal.ZERO
+                : new BigDecimal(tfTaxAmount.getText().trim());
+        BigDecimal discountAmount = tfDiscountAmount.getText().trim().isEmpty() ? BigDecimal.ZERO
+                : new BigDecimal(tfDiscountAmount.getText().trim());
+        BigDecimal totalAmount = tfTotalAmount.getText().trim().isEmpty() ? BigDecimal.ZERO
+                : new BigDecimal(tfTotalAmount.getText().trim());
         String notes = taNotes.getText().trim().isEmpty() ? null : taNotes.getText().trim();
 
         try {
@@ -221,6 +234,4 @@ public class DonHangDialog extends BaseDialog {
             ex.printStackTrace();
         }
     }
-
-    // isSucceeded() kế thừa từ BaseDialog — KHÔNG khai báo lại ở đây
 }

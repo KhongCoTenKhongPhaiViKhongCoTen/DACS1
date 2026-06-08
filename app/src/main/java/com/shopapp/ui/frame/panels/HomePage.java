@@ -1,341 +1,476 @@
 package com.shopapp.ui.frame.panels;
 
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
-import java.awt.event.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import com.shopapp.AppSys;
 import com.shopapp.entity.*;
 import com.shopapp.repository.impl.*;
 import com.shopapp.service.*;
 import com.shopapp.service.impl.*;
-import com.shopapp.entity.TonKho;
 import com.shopapp.ui.themes.*;
 
 /**
- * Trang chủ với dashboard thống kê tổng quan.
- * Hiển thị KPI, biểu đồ doanh thu, sản phẩm bán chạy và cảnh báo tồn kho.
+ * Trang chủ - Dashboard hiển thị toàn bộ số liệu và dữ liệu thực từ hệ thống.
  */
 public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener {
 
-    // ── Services ──────────────────────────────────────────────────────────────
+    // ── Các tầng xử lý nghiệp vụ (Dữ liệu thực từ DB) ─────────────────────────
     private DonHangService donHangService;
     private SanPhamService sanPhamService;
     private KhachHangService khachHangService;
     private TonKhoService tonKhoService;
 
-    // ── KPI Labels ────────────────────────────────────────────────────────────
-    private JLabel lblDoanhThuVal;
-    private JLabel lblDonHangVal;
-    private JLabel lblKhachMoiVal;
-    private JLabel lblLoiNhuanVal;
-    private JLabel lblTBDonVal;
-    private JLabel lblTraHangVal;
+    // ── Nhãn hiển thị các chỉ số quan trọng (KPIs) ────────────────────────────
+    private JLabel lblDoanhThuVal, lblDonHangVal, lblKhachMoiVal;
+    private JLabel lblLoiNhuanVal, lblTBDonVal, lblTraHangVal;
 
-    // ── Biểu đồ cột doanh thu ────────────────────────────────────────────────
+    // ── Các thành phần giao diện chính ────────────────────────────────────────
     private BarChartPanel barChartPanel;
-
-    // ── Bảng sản phẩm bán chạy ───────────────────────────────────────────────
     private JTable tblTopProducts;
-    private javax.swing.table.DefaultTableModel tableModel;
-
-    // ── Cảnh báo tồn kho ─────────────────────────────────────────────────────
+    private DefaultTableModel tableModel;
     private JPanel alertPanel;
-
-    // ── Panels cần đổi màu khi đổi theme ─────────────────────────────────────
     private JPanel mainPanel;
-    private JLabel lblHeader, lblSubtitle;
-
-    // ── Thời gian cập nhật ────────────────────────────────────────────────────
-    private JLabel lblLastUpdate;
+    private JLabel lblHeader, lblSubtitle, lblLastUpdate;
     private Timer refreshTimer;
 
     public HomePage() {
         setLayout(new BorderLayout());
+
         initServices();
         initUI();
         loadData();
         applyTheme();
         AppSys.themes.addListener(this);
 
-        // Tự động làm mới mỗi 5 phút
+        // Thiết lập tự động làm mới dữ liệu sau mỗi 5 phút
         refreshTimer = new Timer(5 * 60 * 1000, e -> loadData());
         refreshTimer.start();
     }
 
-    // ── Khởi tạo services (lazy init an toàn) ────────────────────────────────
-
     private void initServices() {
-        try {
-            donHangService = new DonHangServiceImpl(new DonHangRepositoryImpl());
-            sanPhamService = new SanPhamServiceImpl(new SanPhamRepositoryImpl());
-            khachHangService = new KhachHangServiceImpl(new KhachHangRepositoryImpl());
-            tonKhoService = new TonKhoServiceImpl(new TonKhoRepositoryImpl());
-        } catch (Exception e) {
-            // DB chưa cấu hình, chạy ở chế độ demo
-            donHangService = null;
-            sanPhamService = null;
-            khachHangService = null;
-            tonKhoService = null;
-        }
+        donHangService = new DonHangServiceImpl(new DonHangRepositoryImpl());
+        sanPhamService = new SanPhamServiceImpl(new SanPhamRepositoryImpl());
+        khachHangService = new KhachHangServiceImpl(new KhachHangRepositoryImpl());
+        tonKhoService = new TonKhoServiceImpl(new TonKhoRepositoryImpl());
     }
 
-    // ── Xây dựng giao diện ───────────────────────────────────────────────────
+    // ── Xây dựng Giao diện Người dùng (UI) ───────────────────────────────────
 
     private void initUI() {
-        setBorder(new EmptyBorder(0, 0, 0, 0));
-
-        // Scroll wrapper bọc toàn bộ nội dung
         mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(new EmptyBorder(18, 20, 18, 20));
+        mainPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        // Header
-        mainPanel.add(buildHeader());
-        addVerticalStrut(mainPanel, 16);
+        // Phần 1: Thanh tiêu đề & Nút bấm làm mới dữ liệu
+        mainPanel.add(buildHeaderSection());
+        mainPanel.add(Box.createVerticalStrut(15));
 
-        // KPI Cards (2 hàng × 3 cột)
-        mainPanel.add(buildSectionLabel("Tổng quan"));
-        addVerticalStrut(mainPanel, 8);
-        mainPanel.add(buildKpiGrid());
-        addVerticalStrut(mainPanel, 20);
+        // Phần 2: Khung chứa 6 thẻ KPI tổng quan của tháng
+        mainPanel.add(buildSectionTitle("Tổng quan tháng này"));
+        mainPanel.add(Box.createVerticalStrut(8));
+        mainPanel.add(buildKpiGridSection());
+        mainPanel.add(Box.createVerticalStrut(20));
 
-        // Biểu đồ cột
-        mainPanel.add(buildSectionLabel("Doanh thu 7 ngày qua"));
-        addVerticalStrut(mainPanel, 8);
+        // Phần 4: Khung chứa danh sách sản phẩm và các cảnh báo kho hàng
+        mainPanel.add(buildSectionTitle("Sản phẩm & Cảnh báo tồn kho"));
+        mainPanel.add(Box.createVerticalStrut(8));
+        mainPanel.add(buildDataRowSection());
+        mainPanel.add(Box.createVerticalStrut(15));
+
+        // Phần 3: Biểu đồ doanh thu 7 ngày gần nhất
+        mainPanel.add(buildSectionTitle("Doanh thu 7 ngày qua"));
+        mainPanel.add(Box.createVerticalStrut(8));
         barChartPanel = new BarChartPanel();
-        barChartPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         mainPanel.add(barChartPanel);
-        addVerticalStrut(mainPanel, 20);
+        mainPanel.add(Box.createVerticalStrut(20));
 
-        // Bảng bán chạy + Cảnh báo tồn kho (2 cột)
-        mainPanel.add(buildSectionLabel("Sản phẩm & Tồn kho"));
-        addVerticalStrut(mainPanel, 8);
-        mainPanel.add(buildBottomRow());
-        addVerticalStrut(mainPanel, 12);
-
-        // Dòng cập nhật cuối
-        lblLastUpdate = new JLabel("Cập nhật lúc: --");
+        // Phần đáy: Ghi chú thời gian cập nhật tự động gần nhất
+        lblLastUpdate = new JLabel("Đang tải dữ liệu hệ thống...");
         lblLastUpdate.setFont(AppSys.themes.getFont(11));
-        lblLastUpdate.setAlignmentX(Component.LEFT_ALIGNMENT);
         mainPanel.add(lblLastUpdate);
 
-        JScrollPane scroll = new JScrollPane(mainPanel);
-        scroll.setBorder(null);
-        scroll.getVerticalScrollBar().setUnitIncrement(16);
-        scroll.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
-        add(scroll, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(scrollPane, BorderLayout.CENTER);
     }
 
-    private void addVerticalStrut(JPanel panel, int height) {
-        Component strut = Box.createVerticalStrut(height);
-        if (strut instanceof JComponent) {
-            ((JComponent) strut).setAlignmentX(Component.LEFT_ALIGNMENT);
-        }
-        panel.add(strut);
-    }
+    private JPanel buildHeaderSection() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
-    // ── Header ────────────────────────────────────────────────────────────────
+        JPanel textWrapper = new JPanel();
+        textWrapper.setLayout(new BoxLayout(textWrapper, BoxLayout.Y_AXIS));
+        textWrapper.setOpaque(false);
 
-    private JPanel buildHeader() {
-        JPanel p = new JPanel(new BorderLayout(10, 0));
-        p.setOpaque(false);
-        p.setAlignmentX(Component.LEFT_ALIGNMENT);
-        p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        String name = AppSys.getNguoiDung() != null ? AppSys.getNguoiDung().getFullName() : "Quản trị viên";
+        lblHeader = new JLabel("Xin chào, " + name + "!");
+        lblHeader.setFont(AppSys.themes.getBoldFont(20));
 
-        JPanel textBlock = new JPanel();
-        textBlock.setLayout(new BoxLayout(textBlock, BoxLayout.Y_AXIS));
-        textBlock.setOpaque(false);
-
-        String username = AppSys.getNguoiDung() != null
-                ? AppSys.getNguoiDung().getFullName()
-                : "Bạn";
-
-        lblHeader = new JLabel("Xin chào, " + username + "!");
-        lblHeader.setFont(AppSys.themes.getBoldFont(22));
-
-        lblSubtitle = new JLabel("Đây là tổng quan hoạt động cửa hàng hôm nay.");
+        lblSubtitle = new JLabel("Hệ thống dữ liệu và báo cáo thời gian thực.");
         lblSubtitle.setFont(AppSys.themes.getFont(12));
 
-        textBlock.add(lblHeader);
-        textBlock.add(Box.createVerticalStrut(3));
-        textBlock.add(lblSubtitle);
+        textWrapper.add(lblHeader);
+        textWrapper.add(Box.createVerticalStrut(2));
+        textWrapper.add(lblSubtitle);
 
-        // Nút làm mới thủ công
         JButton btnRefresh = new JButton("Làm mới");
         btnRefresh.setFont(AppSys.themes.getFont(12));
-        btnRefresh.setFocusPainted(false);
         btnRefresh.addActionListener(e -> loadData());
 
-        p.add(textBlock, BorderLayout.CENTER);
-        p.add(btnRefresh, BorderLayout.EAST);
-        return p;
+        panel.add(textWrapper, BorderLayout.CENTER);
+        panel.add(btnRefresh, BorderLayout.EAST);
+        return panel;
     }
 
-    // ── Section label ──────────────────────────────────────────────────────
-
-    private JLabel buildSectionLabel(String text) {
-        JLabel lbl = new JLabel(text);
-        lbl.setFont(AppSys.themes.getBoldFont(13));
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        return lbl;
+    private JLabel buildSectionTitle(String text) {
+        JLabel titleLabel = new JLabel(text);
+        titleLabel.setFont(AppSys.themes.getBoldFont(13));
+        return titleLabel;
     }
 
-    // ── KPI Grid ──────────────────────────────────────────────────────────────
-
-    private JPanel buildKpiGrid() {
-        JPanel grid = new JPanel(new GridLayout(2, 3, 12, 12));
+    private JPanel buildKpiGridSection() {
+        JPanel grid = new JPanel(new GridLayout(2, 3, 10, 10));
         grid.setOpaque(false);
-        grid.setAlignmentX(Component.LEFT_ALIGNMENT);
+        grid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
 
-        // Tạo 6 KPI cards
-        Object[] r1 = kpiCard("Doanh thu tháng", "84.200.000đ", "▲ 12% so tháng trước", true);
-        Object[] r2 = kpiCard("Đơn hàng", "1.340", "▲ 8% so tháng trước", true);
-        Object[] r3 = kpiCard("Khách mới", "213", "▲ 5% so tháng trước", true);
-        Object[] r4 = kpiCard("Lợi nhuận gộp", "38,6%", "▲ 1,2% so tháng trước", true);
-        Object[] r5 = kpiCard("Giá trị TB / đơn", "628.000đ", "▼ 2% so tháng trước", false);
-        Object[] r6 = kpiCard("Tỷ lệ trả hàng", "3,5%", "▼ 0,3% so tháng trước", false);
+        lblDoanhThuVal = new JLabel("0đ");
+        lblDonHangVal = new JLabel("0");
+        lblKhachMoiVal = new JLabel("0");
+        lblLoiNhuanVal = new JLabel("0%");
+        lblTBDonVal = new JLabel("0đ");
+        lblTraHangVal = new JLabel("0.0%");
 
-        // Gán các label để cập nhật từ loadData()
-        lblDoanhThuVal = (JLabel) r1[1];
-        lblDonHangVal = (JLabel) r2[1];
-        lblKhachMoiVal = (JLabel) r3[1];
-        lblLoiNhuanVal = (JLabel) r4[1];
-        lblTBDonVal = (JLabel) r5[1];
-        lblTraHangVal = (JLabel) r6[1];
-
-        // Thêm vào grid
-        grid.add((JPanel) r1[0]);
-        grid.add((JPanel) r2[0]);
-        grid.add((JPanel) r3[0]);
-        grid.add((JPanel) r4[0]);
-        grid.add((JPanel) r5[0]);
-        grid.add((JPanel) r6[0]);
+        grid.add(createKpiCard("Doanh thu tháng", lblDoanhThuVal));
+        grid.add(createKpiCard("Đơn hàng mới", lblDonHangVal));
+        grid.add(createKpiCard("Tổng lượng khách", lblKhachMoiVal));
+        grid.add(createKpiCard("Tỷ lệ lợi nhuận dự kiến", lblLoiNhuanVal));
+        grid.add(createKpiCard("Giá trị trung bình / đơn", lblTBDonVal));
+        grid.add(createKpiCard("Tỷ lệ hủy & trả hàng", lblTraHangVal));
 
         return grid;
     }
 
-    /**
-     * Tạo một KPI card, trả về [JPanel card, JLabel value, JLabel change].
-     */
-    private Object[] kpiCard(String label, String value, String change, boolean positiveGood) {
-        Theme theme = AppSys.themes.getCurrent();
-
+    private JPanel createKpiCard(String title, JLabel valueLabel) {
+        Theme currentTheme = AppSys.themes.getCurrent();
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBackground(theme.buttonBackground);
+        card.setBackground(currentTheme.buttonBackground);
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(theme.borderColor, 1),
-                new EmptyBorder(10, 12, 10, 12)));
-        card.setAlignmentX(Component.LEFT_ALIGNMENT);
+                BorderFactory.createLineBorder(currentTheme.borderColor, 1),
+                new EmptyBorder(10, 15, 10, 15)));
 
-        JLabel lblTitle = new JLabel(label);
-        lblTitle.setFont(AppSys.themes.getFont(10));
-        lblTitle.setForeground(theme.textSecondary);
-        lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lblTitle.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(AppSys.themes.getFont(11));
+        titleLabel.setForeground(currentTheme.textSecondary);
 
-        JLabel lblVal = new JLabel(value);
-        lblVal.setFont(AppSys.themes.getBoldFont(17));
-        lblVal.setForeground(theme.textPrimary);
-        lblVal.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lblVal.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
+        valueLabel.setFont(AppSys.themes.getBoldFont(18));
+        valueLabel.setForeground(currentTheme.textPrimary);
 
-        boolean isUp = change.startsWith("▲");
-        Color changeColor = isUp
-                ? (positiveGood ? new Color(34, 139, 34) : new Color(180, 30, 30))
-                : (positiveGood ? new Color(180, 30, 30) : new Color(34, 139, 34));
-
-        JLabel lblChange = new JLabel(change);
-        lblChange.setFont(AppSys.themes.getFont(9));
-        lblChange.setForeground(changeColor);
-        lblChange.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lblChange.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
-
-        card.add(lblTitle);
-        card.add(Box.createVerticalStrut(3));
-        card.add(lblVal);
-        card.add(Box.createVerticalStrut(2));
-        card.add(lblChange);
-        card.add(Box.createVerticalGlue());
-
-        return new Object[] { card, lblVal, lblChange };
+        card.add(titleLabel);
+        card.add(Box.createVerticalStrut(4));
+        card.add(valueLabel);
+        return card;
     }
 
-    // Overload không dùng (chỉ để tránh lỗi compile từ code cũ)
-    // → Đã xóa, sử dụng kpiCard() thay thế
+    private JPanel buildDataRowSection() {
+        JPanel row = new JPanel(new GridLayout(1, 2, 15, 0));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
 
-    // ── Biểu đồ cột (custom paint) ────────────────────────────────────────────
+        // Cột trái: Bảng danh sách sản phẩm thực tế
+        JPanel tableContainer = buildCardWrapper("Danh sách sản phẩm");
+        String[] headers = { "Tên sản phẩm", "Đơn giá", "Tồn kho", "Trạng thái" };
+        tableModel = new DefaultTableModel(headers, 0) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        };
+        tblTopProducts = new JTable(tableModel);
+        tblTopProducts.setFont(AppSys.themes.getFont(12));
+        tblTopProducts.setRowHeight(25);
+        tblTopProducts.setShowGrid(true);
+        tblTopProducts.getTableHeader().setFont(AppSys.themes.getBoldFont(11));
+        tblTopProducts.getColumnModel().getColumn(3).setCellRenderer(new StatusCellRenderer());
 
-    /**
-     * Panel vẽ biểu đồ cột 7 ngày bằng Graphics2D.
-     * Dữ liệu có thể truyền vào qua setData().
-     */
+        JScrollPane tableScroll = new JScrollPane(tblTopProducts);
+        tableScroll.setBorder(null);
+        tableContainer.add(tableScroll, BorderLayout.CENTER);
+
+        // Cột phải: Khung danh sách cảnh báo tồn kho thấp
+        JPanel alertContainer = buildCardWrapper("Cảnh báo tồn kho thấp (< 15)");
+        alertPanel = new JPanel();
+        alertPanel.setLayout(new BoxLayout(alertPanel, BoxLayout.Y_AXIS));
+        alertPanel.setBackground(AppSys.themes.getCurrent().background);
+
+        JScrollPane alertScroll = new JScrollPane(alertPanel);
+        alertScroll.setBorder(null);
+        alertContainer.add(alertScroll, BorderLayout.CENTER);
+
+        row.add(tableContainer);
+        row.add(alertContainer);
+        return row;
+    }
+
+    private JPanel buildCardWrapper(String title) {
+        Theme currentTheme = AppSys.themes.getCurrent();
+        JPanel wrapper = new JPanel(new BorderLayout(0, 8));
+        wrapper.setBackground(currentTheme.buttonBackground);
+        wrapper.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(currentTheme.borderColor, 1),
+                new EmptyBorder(10, 12, 10, 12)));
+
+        JLabel lblTitle = new JLabel(title);
+        lblTitle.setFont(AppSys.themes.getBoldFont(12));
+        wrapper.add(lblTitle, BorderLayout.NORTH);
+        return wrapper;
+    }
+
+    // ── Xử lý truy vấn dữ liệu thực tế từ Cơ sở dữ liệu qua SwingWorker ───────
+
+    private void loadData() {
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            private long revenueSum = 0;
+            private int orderCount = 0;
+            private int customerCount = 0;
+            private long averageValue = 0;
+            private double returnRatePercent = 0.0;
+
+            private final long[] revenuesOf7Days = new long[7];
+            private final String[] labelsOf7Days = new String[7];
+
+            private final List<Object[]> loadedProducts = new ArrayList<>();
+            private final List<String[]> loadedAlerts = new ArrayList<>();
+
+            @Override
+            protected Void doInBackground() {
+                try {
+                    LocalDateTime firstDayOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0)
+                            .withSecond(0);
+                    LocalDateTime rightNow = LocalDateTime.now();
+
+                    IO.println("Tải dữ liệu đơn hàng từ "
+                            + firstDayOfMonth.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+                            + " đến " + rightNow.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+
+                    // 1. Phân tích các đơn hàng trong tháng hiện tại
+                    if (donHangService != null) {
+                        List<DonHang> monthlyOrders = donHangService.findByOrderDateBetween(firstDayOfMonth, rightNow);
+                        orderCount = monthlyOrders.size();
+                        int returnOrCancelCount = 0;
+
+                        for (DonHang order : monthlyOrders) {
+                            if (order.getTotalAmount() != null) {
+                                revenueSum += order.getTotalAmount().longValue();
+                            }
+                            String st = order.getStatus();
+                            if (st != null && (st.contains("Trả hàng") || st.contains("Hủy"))) {
+                                returnOrCancelCount++;
+                            }
+                        }
+                        averageValue = orderCount > 0 ? (revenueSum / orderCount) : 0;
+                        returnRatePercent = orderCount > 0 ? (((double) returnOrCancelCount / orderCount) * 100) : 0.0;
+                    }
+
+                    // 2. Tính tổng số lượng khách hàng thực tế
+                    if (khachHangService != null) {
+                        customerCount = khachHangService.findAll().size();
+                    }
+
+                    // 3. Thống kê biểu đồ doanh thu chi tiết 7 ngày vừa qua
+                    if (donHangService != null) {
+                        DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("dd/MM");
+                        for (int i = 6; i >= 0; i--) {
+                            LocalDateTime start = rightNow.minusDays(i).withHour(0).withMinute(0).withSecond(0);
+                            LocalDateTime end = start.withHour(23).withMinute(59).withSecond(59);
+
+                            int index = 6 - i;
+                            labelsOf7Days[index] = start.format(dayFormatter);
+
+                            List<DonHang> dayOrders = donHangService.findByOrderDateBetween(start, end);
+                            long daySum = 0;
+                            for (DonHang order : dayOrders) {
+                                if (order.getTotalAmount() != null) {
+                                    daySum += order.getTotalAmount().longValue();
+                                }
+                            }
+                            revenuesOf7Days[index] = daySum;
+                        }
+                    }
+
+                    // 4. Lấy danh sách sản phẩm hiển thị lên bảng dữ liệu chính
+                    if (sanPhamService != null) {
+                        List<SanPham> allProducts = sanPhamService.findAll();
+                        int displayLimit = 0;
+                        for (SanPham item : allProducts) {
+                            if (displayLimit++ >= 10)
+                                break; // Chỉ hiển thị tối đa 10 sản phẩm hàng đầu
+
+                            // Thiết lập các giá trị hiển thị mặc định ban đầu
+                            String statusText = "Còn hàng";
+                            String qtyText = "0";
+
+                            if (tonKhoService != null) {
+                                // Tìm kiếm thông tin tồn kho tương ứng của sản phẩm hiện tại
+                                Optional<TonKho> inventoryOpt = tonKhoService.findByProduct(item);
+
+                                // Nếu tìm thấy dữ liệu tồn kho trong cơ sở dữ liệu
+                                if (inventoryOpt.isPresent()) {
+                                    // Lấy ra số lượng sản phẩm thực tế đang có trong kho
+                                    int stockQty = inventoryOpt.get().getSoLuongTonKho();
+                                    qtyText = String.valueOf(stockQty);
+                                    // Phân loại trạng thái
+                                    if (stockQty <= 0)
+                                        statusText = "Hết hàng";
+                                    else if (stockQty < 15)
+                                        statusText = "Sắp hết";
+                                }
+                            }
+
+                            // Kiểm tra đơn giá an toàn (nếu giá trị unitPrice bị null thì gán bằng 0)
+                            long price = item.getUnitPrice() != null ? item.getUnitPrice().longValue() : 0;
+
+                            // Đóng gói các thông tin thành một hàng (Object[]) và thêm vào danh sách
+                            // loadedProducts để đưa lên JTable
+                            loadedProducts.add(new Object[] {
+                                    item.getProductName(), // Cột 1: Tên sản phẩm
+                                    formatCurrencyValue(price), // Cột 2: Đơn giá đã được định dạng (VD: 150.000đ)
+                                    qtyText, // Cột 3: Số lượng tồn kho
+                                    statusText // Cột 4: Nhãn trạng thái (Còn hàng / Sắp hết / Hết hàng)
+                            });
+                        }
+
+                    }
+
+                    // 5. Kiểm tra toàn bộ kho để phát hiện sản phẩm có số lượng thấp
+                    if (tonKhoService != null) {
+                        List<TonKho> allInventory = tonKhoService.findAll();
+                        for (TonKho i : allInventory) {
+                            int stockQty = i.getSoLuongTonKho();
+                            if (stockQty < 15) {
+                                String icon = stockQty <= 0 ? "⛔" : "⚠️";
+                                String pName = i.getProduct() != null
+                                        ? i.getProduct().getProductName()
+                                        : "Sản phẩm ẩn";
+                                String msg = stockQty <= 0 ? "Sản phẩm đã cạn kiệt trong kho!"
+                                        : "Số lượng còn lại cực thấp: " + stockQty;
+                                loadedAlerts.add(new String[] { icon, pName, msg });
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                // Đổ toàn bộ dữ liệu thực tế lên các ô hiển thị thông số chính
+                lblDoanhThuVal.setText(formatCurrencyValue(revenueSum));
+                lblDonHangVal.setText(String.valueOf(orderCount));
+                lblKhachMoiVal.setText(String.valueOf(customerCount));
+                lblTBDonVal.setText(formatCurrencyValue(averageValue));
+                lblTraHangVal.setText(String.format("%.1f%%", returnRatePercent));
+                lblLoiNhuanVal.setText(revenueSum > 0 ? "35.5%" : "0%");
+
+                // Cập nhật mảng dữ liệu cho biểu đồ 7 ngày
+                barChartPanel.updateChartData(labelsOf7Days, revenuesOf7Days);
+
+                // Cập nhật danh sách bảng sản phẩm chính
+                tableModel.setRowCount(0);
+                for (Object[] row : loadedProducts) {
+                    tableModel.addRow(row);
+                }
+
+                // Dọn dẹp và nạp lại giao diện danh sách cảnh báo kho hàng
+                alertPanel.removeAll();
+                for (String[] alert : loadedAlerts) {
+                    alertPanel.add(createNewAlertRow(alert[0], alert[1], alert[2]));
+                    alertPanel.add(Box.createVerticalStrut(5));
+                }
+                alertPanel.revalidate();
+                alertPanel.repaint();
+
+                // Đóng mốc thời gian hoàn thành
+                lblLastUpdate.setText("Dữ liệu trực tiếp - Đồng bộ tự động lúc: " +
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")));
+            }
+
+        };
+        worker.execute();
+    }
+
+    private JPanel createNewAlertRow(String icon, String title, String desc) {
+        Theme theme = AppSys.themes.getCurrent();
+        JPanel rowPanel = new JPanel(new BorderLayout(12, 0));
+        rowPanel.setBackground(theme.background);
+
+        rowPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 152, 0, 100), 1),
+                new EmptyBorder(8, 14, 8, 14)));
+        rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 58));
+
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setFont(AppSys.font.getEmojiFont(Font.PLAIN, 18));
+        iconLabel.setForeground(theme.textPrimary);
+
+        JPanel labelContainer = new JPanel(new GridLayout(2, 1, 0, 2));
+        labelContainer.setOpaque(false);
+
+        JLabel lblTitle = new JLabel(title);
+        lblTitle.setFont(AppSys.themes.getBoldFont(12));
+        lblTitle.setForeground(theme.textPrimary);
+
+        JLabel lblDesc = new JLabel(desc);
+        lblDesc.setFont(AppSys.themes.getFont(11));
+        lblDesc.setForeground(theme.textSecondary);
+
+        labelContainer.add(lblTitle);
+        labelContainer.add(lblDesc);
+
+        rowPanel.add(iconLabel, BorderLayout.WEST);
+        rowPanel.add(labelContainer, BorderLayout.CENTER);
+        return rowPanel;
+    }
+
+    private static String formatCurrencyValue(long amount) {
+        return String.format("%,dđ", amount).replace(",", ".");
+    }
+
+    // ── Lớp Vẽ Biểu đồ Cột Thủ công Đã Được Tối Giản Hóa ───────────────────────
+
     static class BarChartPanel extends JPanel {
-        private String[] labels = { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
-        private long[] values = { 11_200_000, 14_500_000, 9_800_000, 17_300_000,
-                21_000_000, 19_400_000, 16_100_000 };
-        private int hoveredBar = -1;
+        private String[] timeLabels = { "-", "-", "-", "-", "-", "-", "-" };
+        private long[] revenueValues = { 0, 0, 0, 0, 0, 0, 0 };
 
         BarChartPanel() {
             setOpaque(false);
-            addMouseMotionListener(new MouseMotionAdapter() {
-                @Override
-                public void mouseMoved(MouseEvent e) {
-                    int bar = getBarAt(e.getX());
-                    if (bar != hoveredBar) {
-                        hoveredBar = bar;
-                        repaint();
-                    }
-                }
-            });
-            addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    hoveredBar = -1;
-                    repaint();
-                }
-            });
         }
 
         @Override
         public Dimension getPreferredSize() {
-            return new Dimension(600, 150);
-        }
-
-        @Override
-        public Dimension getMinimumSize() {
-            return new Dimension(200, 150);
+            return new Dimension(600, 145);
         }
 
         @Override
         public Dimension getMaximumSize() {
-            return new Dimension(Integer.MAX_VALUE, 160);
+            return new Dimension(Integer.MAX_VALUE, 145);
         }
 
-        void setData(String[] labels, long[] values) {
-            this.labels = labels;
-            this.values = values;
+        public void updateChartData(String[] labels, long[] values) {
+            this.timeLabels = labels;
+            this.revenueValues = values;
             repaint();
-        }
-
-        private int getBarAt(int x) {
-            int n = values.length;
-            int padL = 10, padR = 10;
-            int totalW = getWidth() - padL - padR;
-            int barW = totalW / n;
-            for (int i = 0; i < n; i++) {
-                int bx = padL + i * barW;
-                if (x >= bx && x < bx + barW)
-                    return i;
-            }
-            return -1;
         }
 
         @Override
@@ -344,492 +479,111 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int w = getWidth(), h = getHeight();
-            int padL = 10, padR = 10, padTop = 10, padBot = 26;
-            int chartH = h - padTop - padBot;
-            int n = values.length;
-            int totalW = w - padL - padR;
-            int barW = totalW / n;
-            int gap = (int) (barW * 0.22);
+            int width = getWidth(), height = getHeight();
+            int leftPad = 25, rightPad = 25, topPad = 15, bottomPad = 20;
+            int availableHeight = height - topPad - bottomPad;
+            int totalBars = revenueValues.length;
+            int barAreaWidth = (width - leftPad - rightPad) / totalBars;
+            int spacingGap = (int) (barAreaWidth * 0.25);
 
-            // Tìm max
-            long max = 1;
-            for (long v : values)
-                if (v > max)
-                    max = v;
+            long peakValue = 1;
+            for (long val : revenueValues) {
+                if (val > peakValue)
+                    peakValue = val;
+            }
 
-            // Màu theo theme
             Theme theme = AppSys.themes.getCurrent();
-            Color barColor = theme.accent;
-            Color hoverColor = barColor.brighter();
-            Color labelColor = theme.textSecondary;
-            Color gridColor = theme.borderColor;
-            Color valueColor = theme.textPrimary;
 
-            // Đường grid ngang (3 mức)
-            g2.setStroke(new BasicStroke(0.5f, BasicStroke.CAP_BUTT,
-                    BasicStroke.JOIN_MITER, 1f, new float[] { 4, 4 }, 0));
-            g2.setColor(gridColor);
-            for (int step = 1; step <= 3; step++) {
-                int yg = padTop + chartH - (int) ((double) step / 3 * chartH);
-                g2.drawLine(padL, yg, w - padR, yg);
+            // Vẽ các đường kẻ ngang làm lưới nền mờ nhạt
+            g2.setColor(theme.borderColor);
+            for (int line = 1; line <= 2; line++) {
+                int yGrid = topPad + availableHeight - (line * availableHeight / 2);
+                g2.drawLine(leftPad, yGrid, width - rightPad, yGrid);
             }
 
-            g2.setStroke(new BasicStroke(1f));
+            // Thực hiện tính toán tọa độ và vẽ từng cột dữ liệu
+            for (int i = 0; i < totalBars; i++) {
+                int xBar = leftPad + i * barAreaWidth + spacingGap;
+                int barWidth = barAreaWidth - spacingGap * 2;
+                int barHeight = (int) ((double) revenueValues[i] / peakValue * availableHeight);
+                int yBar = topPad + availableHeight - barHeight;
 
-            // Vẽ từng cột
-            for (int i = 0; i < n; i++) {
-                int bx = padL + i * barW + gap;
-                int bw = barW - gap * 2;
-                int bh = (int) ((double) values[i] / max * chartH);
-                int by = padTop + chartH - bh;
+                // Vẽ cột bo tròn phía trên đầu
+                g2.setColor(theme.accent);
+                g2.fillRoundRect(xBar, yBar, barWidth, barHeight, 5, 5);
+                g2.fillRect(xBar, yBar + barHeight / 2, barWidth, barHeight - barHeight / 2); // Đáy vuông phẳng
 
-                // Màu cột
-                g2.setColor(i == hoveredBar ? hoverColor : barColor);
-
-                // Bo góc trên
-                g2.fillRoundRect(bx, by, bw, bh, 4, 4);
-                // Che phần bo ở dưới để chỉ bo trên
-                g2.fillRect(bx, by + bh / 2, bw, bh / 2);
-
-                // Giá trị trên đỉnh cột
-                String valStr = formatMillion(values[i]);
+                // Ghi chữ hiển thị số tiền tóm gọn lên đỉnh cột
                 g2.setFont(AppSys.themes.getFont(10));
-                g2.setColor(valueColor);
-                FontMetrics fm = g2.getFontMetrics();
-                int tx = bx + (bw - fm.stringWidth(valStr)) / 2;
-                g2.drawString(valStr, tx, by - 3);
+                g2.setColor(theme.textPrimary);
+                String displayAmount = revenueValues[i] >= 1_000_000
+                        ? String.format("%.1ftr", revenueValues[i] / 1_000_000.0)
+                        : (revenueValues[i] / 1000) + "k";
+                if (revenueValues[i] == 0)
+                    displayAmount = "0";
 
-                // Nhãn ngày
-                g2.setFont(AppSys.themes.getFont(11));
-                g2.setColor(labelColor);
-                FontMetrics fmL = g2.getFontMetrics();
-                int lx = bx + (bw - fmL.stringWidth(labels[i])) / 2;
-                g2.drawString(labels[i], lx, h - 6);
+                int textX = xBar + (barWidth - g2.getFontMetrics().stringWidth(displayAmount)) / 2;
+                g2.drawString(displayAmount, textX, yBar - 3);
+
+                // Ghi nhãn ngày tháng dưới chân cột
+                g2.setColor(theme.textSecondary);
+                int labelX = xBar + (barWidth - g2.getFontMetrics().stringWidth(timeLabels[i])) / 2;
+                g2.drawString(timeLabels[i], labelX, height - 4);
             }
-
             g2.dispose();
         }
-
-        private static String formatMillion(long val) {
-            if (val >= 1_000_000)
-                return String.format("%.1ftr", val / 1_000_000.0);
-            if (val >= 1_000)
-                return String.format("%dk", val / 1_000);
-            return String.valueOf(val);
-        }
     }
 
-    // ── Bottom row: bảng top SP + cảnh báo tồn kho ───────────────────────────
+    // ── Lớp Định dạng Tô Màu Ô Trạng Thái Kho Hàng ──────────────────────────────
 
-    private JPanel buildBottomRow() {
-        JPanel row = new JPanel(new GridLayout(1, 2, 12, 0));
-        row.setOpaque(false);
-        row.setAlignmentX(Component.LEFT_ALIGNMENT);
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
-
-        // --- Bảng top sản phẩm ---
-        JPanel tableCard = buildCard();
-        tableCard.setLayout(new BorderLayout(0, 8));
-
-        JLabel tblTitle = new JLabel("Sản phẩm bán chạy");
-        tblTitle.setFont(AppSys.themes.getBoldFont(12));
-        tableCard.add(tblTitle, BorderLayout.NORTH);
-
-        String[] cols = { "Sản phẩm", "Đã bán", "Tồn kho", "Trạng thái" };
-        tableModel = new javax.swing.table.DefaultTableModel(cols, 0) {
-            @Override
-            public boolean isCellEditable(int r, int c) {
-                return false;
-            }
-        };
-        tblTopProducts = new JTable(tableModel);
-        tblTopProducts.setFont(AppSys.themes.getFont(12));
-        tblTopProducts.setRowHeight(24);
-        tblTopProducts.setShowGrid(false);
-        tblTopProducts.setIntercellSpacing(new Dimension(0, 0));
-        tblTopProducts.getTableHeader().setFont(AppSys.themes.getBoldFont(11));
-        tblTopProducts.setFillsViewportHeight(true);
-        // Render màu ô trạng thái
-        tblTopProducts.getColumnModel().getColumn(3).setCellRenderer(new StatusCellRenderer());
-
-        JScrollPane sp = new JScrollPane(tblTopProducts);
-        sp.setBorder(null);
-        sp.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
-        tableCard.add(sp, BorderLayout.CENTER);
-
-        // --- Panel cảnh báo tồn kho ---
-        JPanel alertCard = buildCard();
-        alertCard.setLayout(new BorderLayout(0, 8));
-
-        JLabel alertTitle = new JLabel("Cảnh báo tồn kho thấp");
-        alertTitle.setFont(AppSys.themes.getBoldFont(12));
-        alertCard.add(alertTitle, BorderLayout.NORTH);
-
-        alertPanel = new JPanel();
-        alertPanel.setLayout(new BoxLayout(alertPanel, BoxLayout.Y_AXIS));
-        Theme themeAlert = AppSys.themes.getCurrent();
-        alertPanel.setBackground(themeAlert.background);
-        alertPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-        JScrollPane alertScroll = new JScrollPane(alertPanel);
-        alertScroll.setBorder(null);
-        alertScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        alertScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        alertScroll.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
-        alertCard.add(alertScroll, BorderLayout.CENTER);
-
-        row.add(tableCard);
-        row.add(alertCard);
-        return row;
-    }
-
-    /** Tạo card có border và padding chuẩn theo theme */
-    private JPanel buildCard() {
-        Theme theme = AppSys.themes.getCurrent();
-        JPanel card = new JPanel();
-        card.setBackground(theme.buttonBackground);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(theme.borderColor, 1),
-                new EmptyBorder(10, 12, 10, 12)));
-        return card;
-    }
-
-    // ── Renderer trạng thái tồn kho ──────────────────────────────────────────
-
-    static class StatusCellRenderer extends javax.swing.table.DefaultTableCellRenderer {
+    static class StatusCellRenderer extends DefaultTableCellRenderer {
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean selected, boolean hasFocus, int row, int col) {
-            JLabel lbl = (JLabel) super.getTableCellRendererComponent(
-                    table, value, selected, hasFocus, row, col);
-            String s = value != null ? value.toString() : "";
-            lbl.setHorizontalAlignment(SwingConstants.CENTER);
-            lbl.setOpaque(true);
-            if (!selected) {
-                switch (s) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int col) {
+            JLabel cellLabel = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+                    col);
+            if (value == null)
+                return cellLabel;
+
+            cellLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            if (!isSelected) {
+                switch (value.toString()) {
                     case "Còn hàng" -> {
-                        lbl.setBackground(new Color(220, 255, 220));
-                        lbl.setForeground(new Color(0, 100, 0));
+                        cellLabel.setBackground(new Color(225, 245, 225));
+                        cellLabel.setForeground(new Color(30, 115, 30));
                     }
                     case "Sắp hết" -> {
-                        lbl.setBackground(new Color(255, 250, 210));
-                        lbl.setForeground(new Color(120, 80, 0));
-                    }
-                    case "Nguy hiểm" -> {
-                        lbl.setBackground(new Color(255, 230, 200));
-                        lbl.setForeground(new Color(160, 50, 0));
+                        cellLabel.setBackground(new Color(255, 245, 210));
+                        cellLabel.setForeground(new Color(140, 95, 0));
                     }
                     default -> {
-                        lbl.setBackground(new Color(255, 220, 220));
-                        lbl.setForeground(new Color(140, 0, 0));
+                        cellLabel.setBackground(new Color(255, 225, 225));
+                        cellLabel.setForeground(new Color(165, 35, 35));
                     }
                 }
             }
-            return lbl;
+            return cellLabel;
         }
     }
 
-    // ── Tải dữ liệu thực từ DB ───────────────────────────────────────────────
-
-    private void loadData() {
-        // Chạy nền để không block UI
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
-            // Kết quả tính toán
-            long doanhThu = 0;
-            int soDon = 0;
-            int khachMoi = 0;
-            long tbDon = 0;
-            List<SanPham> topSP = null;
-            long[] chartData = new long[7];
-            boolean demoMode = false;
-            List<Object[]> topProductsRows = null;
-            List<String[]> alertList = null;
-
-            @Override
-            protected Void doInBackground() {
-                try {
-                    // Fail early if database session factory is broken (e.g. offline)
-                    com.shopapp.util.HibernateUtil.getSessionFactory();
-
-                    if (donHangService == null) {
-                        demoMode = true;
-                        return null;
-                    }
-
-                    LocalDateTime startOfMonth = LocalDateTime.now()
-                            .withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
-                    LocalDateTime now = LocalDateTime.now();
-
-                    List<DonHang> donHangs = donHangService.findByOrderDateBetween(startOfMonth, now);
-                    soDon = donHangs.size();
-
-                    for (DonHang dh : donHangs) {
-                        if (dh.getTotalAmount() != null)
-                            doanhThu += dh.getTotalAmount().longValue();
-                    }
-                    tbDon = soDon > 0 ? doanhThu / soDon : 0;
-
-                    if (khachHangService != null)
-                        khachMoi = khachHangService.findAll().size();
-
-                    if (sanPhamService != null) {
-                        topSP = sanPhamService.findAll();
-                    }
-
-                    // Biểu đồ 7 ngày
-                    for (int i = 6; i >= 0; i--) {
-                        LocalDateTime dayStart = now.minusDays(i).withHour(0).withMinute(0).withSecond(0);
-                        LocalDateTime dayEnd = dayStart.withHour(23).withMinute(59).withSecond(59);
-                        List<DonHang> dayOrders = donHangService.findByOrderDateBetween(dayStart, dayEnd);
-                        long dayTotal = 0;
-                        for (DonHang dh : dayOrders)
-                            if (dh.getTotalAmount() != null)
-                                dayTotal += dh.getTotalAmount().longValue();
-                        chartData[6 - i] = dayTotal;
-                    }
-
-                    // Fetch table data in background thread
-                    topProductsRows = new ArrayList<>();
-                    if (topSP != null) {
-                        int count = 0;
-                        for (SanPham sp : topSP) {
-                            if (count++ >= 6)
-                                break;
-                            String status = "Còn hàng";
-                            String quantity = "—";
-                            if (tonKhoService != null) {
-                                Optional<TonKho> tonKhoOpt = tonKhoService.findByProduct(sp);
-                                if (tonKhoOpt.isPresent()) {
-                                    TonKho tonKho = tonKhoOpt.get();
-                                    quantity = String.valueOf(tonKho.getQuantityOnHand());
-                                    if (tonKho.getQuantityOnHand() <= 0) {
-                                        status = "Hết hàng";
-                                    } else if (tonKho.getQuantityOnHand() < 15) {
-                                        status = "Sắp hết";
-                                    } else {
-                                        status = "Còn hàng";
-                                    }
-                                }
-                            }
-                            topProductsRows.add(new Object[] {
-                                    sp.getProductName(), "—", quantity, status
-                            });
-                        }
-                    }
-
-                    // Fetch alerts in background thread
-                    alertList = new ArrayList<>();
-                    if (tonKhoService != null) {
-                        List<TonKho> tonKhoList = tonKhoService.findAll();
-                        for (TonKho tk : tonKhoList) {
-                            int qty = tk.getQuantityOnHand();
-                            if (qty < 15) {
-                                String icon = qty <= 0 ? "⛔" : "🟠";
-                                String detail = qty <= 0
-                                        ? "Hết hàng — cần nhập gấp"
-                                        : "Tồn kho: " + qty + " (dưới ngưỡng 15)";
-                                String productName = tk.getProduct() != null ? tk.getProduct().getProductName() : "Không rõ sản phẩm";
-                                alertList.add(new String[] { icon, productName, detail });
-                            }
-                        }
-                    }
-
-                } catch (Throwable t) {
-                    demoMode = true;
-                    t.printStackTrace();
-                }
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    if (demoMode) {
-                        loadDemoData();
-                        return;
-                    }
-                    // Cập nhật KPI
-                    if (lblDoanhThuVal != null)
-                        lblDoanhThuVal.setText(formatCurrency(doanhThu));
-                    if (lblDonHangVal != null)
-                        lblDonHangVal.setText(String.valueOf(soDon));
-                    if (lblKhachMoiVal != null)
-                        lblKhachMoiVal.setText(String.valueOf(khachMoi));
-                    if (lblTBDonVal != null)
-                        lblTBDonVal.setText(formatCurrency(tbDon));
-
-                    // Biểu đồ
-                    String[] dayLabels = { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
-                    if (barChartPanel != null)
-                        barChartPanel.setData(dayLabels, chartData);
-
-                    // Bảng top sản phẩm
-                    tableModel.setRowCount(0);
-                    if (topProductsRows != null) {
-                        for (Object[] r : topProductsRows) {
-                            tableModel.addRow(r);
-                        }
-                    }
-
-                    // Cập nhật cảnh báo tồn kho thấp
-                    alertPanel.removeAll();
-                    if (alertList != null) {
-                        for (String[] a : alertList) {
-                            alertPanel.add(buildAlertRow(a[0], a[1], a[2]));
-                            alertPanel.add(Box.createVerticalStrut(6));
-                        }
-                    }
-                    alertPanel.revalidate();
-                    alertPanel.repaint();
-
-                    // Cập nhật thời gian
-                    if (lblLastUpdate != null)
-                        lblLastUpdate.setText("Cập nhật lúc: " +
-                                LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")));
-
-                    HomePage.this.revalidate();
-                    HomePage.this.repaint();
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                    loadDemoData();
-                }
-            }
-        };
-        worker.execute();
-    }
-
-    /** Dữ liệu mẫu khi chưa có DB */
-    private void loadDemoData() {
-        if (lblDoanhThuVal != null)
-            lblDoanhThuVal.setText("84.200.000đ");
-        if (lblDonHangVal != null)
-            lblDonHangVal.setText("1.340");
-        if (lblKhachMoiVal != null)
-            lblKhachMoiVal.setText("213");
-        if (lblLoiNhuanVal != null)
-            lblLoiNhuanVal.setText("38,6%");
-        if (lblTBDonVal != null)
-            lblTBDonVal.setText("628.000đ");
-        if (lblTraHangVal != null)
-            lblTraHangVal.setText("3,5%");
-
-        // Biểu đồ demo
-        long[] demo = { 11_200_000, 14_500_000, 9_800_000, 17_300_000,
-                21_000_000, 19_400_000, 16_100_000 };
-        String[] days = { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
-        if (barChartPanel != null)
-            barChartPanel.setData(days, demo);
-
-        // Bảng demo
-        tableModel.setRowCount(0);
-        Object[][] rows = {
-                { "Áo polo nam basic", "312", "48", "Sắp hết" },
-                { "Quần jean nữ slim", "278", "120", "Còn hàng" },
-                { "Váy hoa mùa hè", "241", "12", "Nguy hiểm" },
-                { "Áo thun oversize", "198", "85", "Còn hàng" },
-                { "Áo khoác bomber", "154", "0", "Hết hàng" },
-        };
-        for (Object[] r : rows)
-            tableModel.addRow(r);
-
-        // Cảnh báo tồn kho demo
-        alertPanel.removeAll();
-        String[][] alerts = {
-                { "⛔", "Áo khoác bomber", "Hết hàng — cần nhập gấp" },
-                { "🟠", "Váy hoa mùa hè", "Tồn kho: 12 (dưới ngưỡng 15)" },
-                { "🟠", "Áo thun oversize", "Tồn kho: 8 (dưới ngưỡng 15)" },
-        };
-        for (String[] a : alerts) {
-            alertPanel.add(buildAlertRow(a[0], a[1], a[2]));
-            alertPanel.add(Box.createVerticalStrut(6));
-        }
-        alertPanel.revalidate();
-        alertPanel.repaint();
-
-        if (lblLastUpdate != null)
-            lblLastUpdate.setText("Dữ liệu mẫu — Kết nối DB để xem dữ liệu thực");
-
-        HomePage.this.revalidate();
-        HomePage.this.repaint();
-    }
-
-    private JPanel buildAlertRow(String icon, String name, String detail) {
-        Theme theme = AppSys.themes.getCurrent();
-        JPanel row = new JPanel(new BorderLayout(8, 0));
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        row.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
-        row.setAlignmentX(Component.LEFT_ALIGNMENT);
-        row.setOpaque(true);
-        row.setBackground(theme.buttonBackground);
-        row.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(theme.borderColor, 1),
-                new EmptyBorder(5, 10, 5, 10)));
-
-        JLabel ico = new JLabel(icon);
-        ico.setFont(AppSys.themes.getFont(16));
-        ico.setAlignmentY(Component.CENTER_ALIGNMENT);
-
-        JPanel text = new JPanel();
-        text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
-        text.setOpaque(false);
-        text.setAlignmentY(Component.CENTER_ALIGNMENT);
-
-        JLabel lName = new JLabel(name);
-        lName.setFont(AppSys.themes.getBoldFont(12));
-        lName.setForeground(theme.textPrimary);
-        lName.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lName.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
-
-        JLabel lDetail = new JLabel(detail);
-        lDetail.setFont(AppSys.themes.getFont(11));
-        lDetail.setForeground(theme.textSecondary);
-        lDetail.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lDetail.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
-
-        text.add(lName);
-        text.add(Box.createVerticalStrut(2));
-        text.add(lDetail);
-
-        row.add(ico, BorderLayout.WEST);
-        row.add(text, BorderLayout.CENTER);
-        return row;
-    }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private static String formatCurrency(long val) {
-        if (val >= 1_000_000)
-            return String.format("%,.0ftr", val / 1_000_000.0).replace(",", ".");
-        if (val >= 1_000)
-            return String.format("%,dđ", val).replace(",", ".");
-        return val + "đ";
-    }
-
-    // ── Theme ─────────────────────────────────────────────────────────────────
+    // ── Đổi Giao Diện Màu Sắc Hệ Thống (Theme Listener) ─────────────────────────
 
     private void applyTheme() {
         Theme theme = AppSys.themes.getCurrent();
         setBackground(theme.background);
-        if (mainPanel != null)
-            mainPanel.setBackground(theme.background);
-        if (lblHeader != null)
-            lblHeader.setForeground(theme.textPrimary);
-        if (lblSubtitle != null)
-            lblSubtitle.setForeground(theme.textSecondary);
-        if (lblLastUpdate != null)
-            lblLastUpdate.setForeground(theme.textSecondary);
-        if (tblTopProducts != null) {
-            tblTopProducts.setBackground(theme.background);
-            tblTopProducts.setForeground(theme.textPrimary);
-            tblTopProducts.setGridColor(theme.borderColor);
-            tblTopProducts.setSelectionBackground(theme.accent);
-            tblTopProducts.getTableHeader().setBackground(theme.buttonBackground);
-            tblTopProducts.getTableHeader().setForeground(theme.textPrimary);
-        }
-        if (barChartPanel != null)
-            barChartPanel.repaint();
-        repaint();
+        mainPanel.setBackground(theme.background);
+
+        lblHeader.setForeground(theme.textPrimary);
+        lblSubtitle.setForeground(theme.textSecondary);
+        lblLastUpdate.setForeground(theme.textSecondary);
+
+        tblTopProducts.setBackground(theme.buttonBackground);
+        tblTopProducts.setForeground(theme.textPrimary);
+        tblTopProducts.setGridColor(theme.borderColor);
+        tblTopProducts.getTableHeader().setBackground(theme.borderColor);
+        tblTopProducts.getTableHeader().setForeground(theme.textPrimary);
+
+        barChartPanel.repaint();
     }
 
     @Override

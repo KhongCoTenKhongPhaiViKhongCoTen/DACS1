@@ -94,7 +94,7 @@ public class TonKhoDialog extends BaseDialog {
 
         // Chế độ Sửa → điền dữ liệu entity vào form
         cbProduct.setSelectedItem(tonKho.getProduct());
-        tfQuantityOnHand.setText(String.valueOf(tonKho.getQuantityOnHand()));
+        tfQuantityOnHand.setText(String.valueOf(tonKho.getSoLuongTonKho()));
         tfLocation.setText(tonKho.getLocation() != null ? tonKho.getLocation() : "");
     }
 
