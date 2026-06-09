@@ -158,6 +158,6 @@ public class SanPham {
 
     @Override
     public String toString() {
-        return productName; // Hiển thị tên sản phẩm trong JComboBox
+        return productName + " (SKU: " + sku + ")"; 
     }
 }
