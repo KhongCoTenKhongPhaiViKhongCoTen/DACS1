@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import javax.swing.*;
 
-import com.shopapp.AppSys;
 import com.shopapp.entity.DanhMuc;
 import com.shopapp.repository.impl.DanhMucRepositoryImpl;
 import com.shopapp.service.DanhMucService;
@@ -15,9 +14,7 @@ import com.shopapp.ui.frame.panels.Dialog.DanhMucDialog;
 
 public class DanhMucPage extends BasePage {
 
-
     private DanhMucService danhMucService;
-
 
     public DanhMucPage() {
         super(new String[] {
@@ -26,8 +23,6 @@ public class DanhMucPage extends BasePage {
                 "Mô tả"
         });
     }
-
-    // ── Lazy init service ─────────────────────────────────────────────────────
 
     private DanhMucService getDanhMucService() {
         if (danhMucService == null) {
@@ -41,8 +36,6 @@ public class DanhMucPage extends BasePage {
     private JFrame getParentFrame() {
         return (JFrame) SwingUtilities.getWindowAncestor(this);
     }
-
-    // ── Filter & Table ────────────────────────────────────────────────────────
 
     @Override
     protected void addCustomFilters() {
@@ -88,8 +81,6 @@ public class DanhMucPage extends BasePage {
     protected void handleFilter() {
         showTableData(true);
     }
-
-    // ── CRUD handlers ─────────────────────────────────────────────────────────
 
     @Override
     protected void handleAdd() {
@@ -159,16 +150,12 @@ public class DanhMucPage extends BasePage {
         }
     }
 
-    // ── Custom buttons & events ───────────────────────────────────────────────
-
     @Override
     protected void addCustomButtons() {
-        // No custom buttons for now
     }
 
     @Override
     protected void attachCustomEvents() {
-        // Load dữ liệu ban đầu
         showTableData(false);
     }
 }

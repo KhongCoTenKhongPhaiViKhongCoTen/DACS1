@@ -19,7 +19,7 @@ ShopApp là một ứng dụng Java desktop giúp quản lý hiệu quả các h
 
 ## Cấu trúc dự án
 
-```
+```folder
 app/
 ├── src/
 │   ├── main/

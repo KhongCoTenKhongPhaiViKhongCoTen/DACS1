@@ -11,9 +11,6 @@ import com.shopapp.service.impl.DonHangServiceImpl;
 import com.shopapp.ui.components.BasePage;
 import com.shopapp.ui.frame.panels.Dialog.DonHangDialog;
 
-/**
- * Panel for managing Don Hang (Orders)
- */
 public class DonHangPage extends BasePage {
 
     private DonHangService donHangService;
@@ -30,8 +27,6 @@ public class DonHangPage extends BasePage {
         });
     }
 
-    // ── Lazy init service ─────────────────────────────────────────────────────
-
     private DonHangService getDonHangService() {
         if (donHangService == null) {
             donHangService = new DonHangServiceImpl(new DonHangRepositoryImpl());
@@ -39,17 +34,13 @@ public class DonHangPage extends BasePage {
         return donHangService;
     }
 
-    // ── Lấy Frame cha ─────────────────────────────────────────────────────────
-
     private JFrame getParentFrame() {
         return (JFrame) SwingUtilities.getWindowAncestor(this);
     }
 
-    // ── Filter & Table ────────────────────────────────────────────────────────
-
     @Override
     protected void addCustomFilters() {
-        // Không có filter tùy chỉnh
+
     }
 
     @Override
@@ -100,8 +91,6 @@ public class DonHangPage extends BasePage {
     protected void handleFilter() {
         showTableData(true);
     }
-
-    // ── CRUD handlers ─────────────────────────────────────────────────────────
 
     @Override
     protected void handleAdd() {
@@ -171,16 +160,12 @@ public class DonHangPage extends BasePage {
         }
     }
 
-    // ── Custom buttons & events ───────────────────────────────────────────────
-
     @Override
     protected void addCustomButtons() {
-        // No custom buttons for now
     }
 
     @Override
     protected void attachCustomEvents() {
-        // Load dữ liệu ban đầu
         showTableData(false);
     }
 }

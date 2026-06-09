@@ -63,7 +63,6 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         tonKhoService = new TonKhoServiceImpl(new TonKhoRepositoryImpl());
     }
 
-    // ── Xây dựng Giao diện Người dùng (UI) ───────────────────────────────────
 
     private void initUI() {
         mainPanel = new JPanel();
@@ -80,13 +79,13 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         mainPanel.add(buildKpiGridSection());
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // Phần 4: Khung chứa danh sách sản phẩm và các cảnh báo kho hàng
+        // Phần 3: Khung chứa danh sách sản phẩm và các cảnh báo kho hàng
         mainPanel.add(buildSectionTitle("Sản phẩm & Cảnh báo tồn kho"));
         mainPanel.add(Box.createVerticalStrut(8));
         mainPanel.add(buildDataRowSection());
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // Phần 3: Biểu đồ doanh thu 7 ngày gần nhất
+        // Phần 4: Biểu đồ doanh thu 7 ngày gần nhất
         mainPanel.add(buildSectionTitle("Doanh thu 7 ngày qua"));
         mainPanel.add(Box.createVerticalStrut(8));
         barChartPanel = new BarChartPanel();
@@ -153,7 +152,6 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
         grid.add(createKpiCard("Doanh thu tháng", lblDoanhThuVal));
         grid.add(createKpiCard("Đơn hàng mới", lblDonHangVal));
         grid.add(createKpiCard("Tổng lượng khách", lblKhachMoiVal));
-        grid.add(createKpiCard("Tỷ lệ lợi nhuận dự kiến", lblLoiNhuanVal));
         grid.add(createKpiCard("Giá trị trung bình / đơn", lblTBDonVal));
         grid.add(createKpiCard("Tỷ lệ hủy & trả hàng", lblTraHangVal));
 
@@ -184,7 +182,8 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
     private JPanel buildDataRowSection() {
         JPanel row = new JPanel(new GridLayout(1, 2, 15, 0));
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 420));
+        row.setOpaque(false);
 
         // Cột trái: Bảng danh sách sản phẩm thực tế
         JPanel tableContainer = buildCardWrapper("Danh sách sản phẩm");
@@ -195,15 +194,16 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
                 return false;
             }
         };
+
         tblTopProducts = new JTable(tableModel);
         tblTopProducts.setFont(AppSys.themes.getFont(12));
         tblTopProducts.setRowHeight(25);
-        tblTopProducts.setShowGrid(true);
         tblTopProducts.getTableHeader().setFont(AppSys.themes.getBoldFont(11));
         tblTopProducts.getColumnModel().getColumn(3).setCellRenderer(new StatusCellRenderer());
 
         JScrollPane tableScroll = new JScrollPane(tblTopProducts);
         tableScroll.setBorder(null);
+        tableScroll.getViewport().setBackground(AppSys.themes.getCurrent().background);
         tableContainer.add(tableScroll, BorderLayout.CENTER);
 
         // Cột phải: Khung danh sách cảnh báo tồn kho thấp
@@ -459,12 +459,12 @@ public class HomePage extends JPanel implements ThemeManager.ThemeChangeListener
 
         @Override
         public Dimension getPreferredSize() {
-            return new Dimension(600, 145);
+            return new Dimension(600, 345);
         }
 
         @Override
         public Dimension getMaximumSize() {
-            return new Dimension(Integer.MAX_VALUE, 145);
+            return new Dimension(Integer.MAX_VALUE, 345);
         }
 
         public void updateChartData(String[] labels, long[] values) {

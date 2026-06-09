@@ -11,9 +11,6 @@ import com.shopapp.service.impl.KhachHangServiceImpl;
 import com.shopapp.ui.components.BasePage;
 import com.shopapp.ui.frame.panels.Dialog.KhachHangDialog;
 
-/**
- * Panel for managing Khach Hang (Customers)
- */
 public class KhachHangPage extends BasePage {
 
     private KhachHangService khachHangService;
@@ -30,8 +27,6 @@ public class KhachHangPage extends BasePage {
         });
     }
 
-    // ── Lazy init service ─────────────────────────────────────────────────────
-
     private KhachHangService getKhachHangService() {
         if (khachHangService == null) {
             khachHangService = new KhachHangServiceImpl(new KhachHangRepositoryImpl());
@@ -39,17 +34,12 @@ public class KhachHangPage extends BasePage {
         return khachHangService;
     }
 
-    // ── Lấy Frame cha ─────────────────────────────────────────────────────────
-
     private JFrame getParentFrame() {
         return (JFrame) SwingUtilities.getWindowAncestor(this);
     }
 
-    // ── Filter & Table ────────────────────────────────────────────────────────
-
     @Override
     protected void addCustomFilters() {
-        // Không có filter tùy chỉnh
     }
 
     @Override
@@ -67,12 +57,14 @@ public class KhachHangPage extends BasePage {
                     String phone = khachHang.getPhone() != null ? khachHang.getPhone().toLowerCase() : "";
                     String address = khachHang.getAddress() != null ? khachHang.getAddress().toLowerCase() : "";
                     String loyaltyStr = String.valueOf(khachHang.getLoyaltyPoints());
-                    String createdStr = khachHang.getCreatedAt() != null ? khachHang.getCreatedAt().toString().toLowerCase() : "";
+                    String createdStr = khachHang.getCreatedAt() != null
+                            ? khachHang.getCreatedAt().toString().toLowerCase()
+                            : "";
 
                     if (!idStr.contains(searchQuery) && !nameStr.contains(searchQuery) &&
-                        !email.contains(searchQuery) && !phone.contains(searchQuery) &&
-                        !address.contains(searchQuery) && !loyaltyStr.contains(searchQuery) &&
-                        !createdStr.contains(searchQuery)) {
+                            !email.contains(searchQuery) && !phone.contains(searchQuery) &&
+                            !address.contains(searchQuery) && !loyaltyStr.contains(searchQuery) &&
+                            !createdStr.contains(searchQuery)) {
                         continue;
                     }
                 }
@@ -100,8 +92,6 @@ public class KhachHangPage extends BasePage {
     protected void handleFilter() {
         showTableData(true);
     }
-
-    // ── CRUD handlers ─────────────────────────────────────────────────────────
 
     @Override
     protected void handleAdd() {
@@ -171,16 +161,12 @@ public class KhachHangPage extends BasePage {
         }
     }
 
-    // ── Custom buttons & events ───────────────────────────────────────────────
-
     @Override
     protected void addCustomButtons() {
-        // No custom buttons for now
     }
 
     @Override
     protected void attachCustomEvents() {
-        // Load dữ liệu ban đầu
         showTableData(false);
     }
 }
